@@ -71,7 +71,8 @@ def get_system_prompt(perfil, gastos):
     disponible = ingreso - total_gastado
 
     # Calcular límites y alertas
-    limites = {cat: round(ingreso * pct / 100) for cat, pct in PORCENTAJES_BASE.items()} if ingreso > 0 else {}
+    porcentajes_activos = calcular_porcentajes_activos(perfil)
+    limites = {cat: round(ingreso * pct / 100) for cat, pct in porcentajes_activos.items()} if ingreso > 0 else {}
     alertas = []
     for cat, limite in limites.items():
         gastado = gastos.get(cat, 0)
@@ -92,6 +93,8 @@ def get_system_prompt(perfil, gastos):
     return f"""Eres ALD.IA (Automatización de Liquidación Diaria con Inteligencia Artificial), una asistente financiera personal en español para jóvenes mexicanos. Hoy es {fecha}, día {dia}.
 
 {contexto}
+
+{'ONBOARDING PENDIENTE: El usuario aún no ha configurado sus categorías. Después de obtener ingreso y meta, pregunta estas 3 preguntas UNA POR UNA: 1) ¿Pagas renta o hipoteca? 2) ¿Usas carro o gastas en transporte regularmente? 3) ¿Tienes deudas activas como tarjetas o préstamos? Cuando el usuario responda las 3, confirma las categorías activas.' if not perfil.get('onboarding_done') else ''}
 
 CATEGORIAS (usa estas exactas):
 - vivienda: renta, luz, agua, internet, teléfono, seguro de casa
@@ -125,10 +128,27 @@ def get_session():
     if "messages" not in session:
         session["messages"] = []
     if "perfil" not in session:
-        session["perfil"] = {"ingreso": 0, "meta": 0, "plazo": ""}
+        session["perfil"] = {
+            "ingreso": 0, "meta": 0, "plazo": "",
+            "tiene_vivienda": True, "tiene_transporte": True,
+            "tiene_deudas": True, "onboarding_done": False
+        }
     if "gastos" not in session:
         session["gastos"] = {cat: 0 for cat in PORCENTAJES_BASE.keys()}
     return session["messages"], session["perfil"], session["gastos"]
+
+def calcular_porcentajes_activos(perfil):
+    base = dict(PORCENTAJES_BASE)
+    liberado = 0
+    if not perfil.get("tiene_vivienda", True):
+        liberado += base.pop("vivienda", 0)
+    if not perfil.get("tiene_transporte", True):
+        liberado += base.pop("transporte", 0)
+    if not perfil.get("tiene_deudas", True):
+        liberado += base.pop("deudas", 0)
+    if liberado > 0:
+        base["ahorro"] = base.get("ahorro", 15) + liberado
+    return base
 
 def extract_ingreso(line):
     match = re.search(r'\$?\s*(\d[\d,\.]*)\s*(?:pesos?|mxn)?', line, re.IGNORECASE)
@@ -176,6 +196,17 @@ def update_perfil_and_gastos(user_message, perfil, gastos):
         desc = match.group(2) or ""
         cat = classify_gasto(desc)
         gastos[cat] = gastos.get(cat, 0) + amount
+        
+        # Detect category preferences
+    if any(w in msg for w in ['no pago renta', 'no tengo renta', 'vivo con mis padres', 'no pago vivienda']):
+        perfil["tiene_vivienda"] = False
+    if any(w in msg for w in ['no tengo carro', 'no manejo', 'no uso transporte', 'camino']):
+        perfil["tiene_transporte"] = False
+    if any(w in msg for w in ['no tengo deudas', 'sin deudas', 'no debo nada']):
+        perfil["tiene_deudas"] = False
+    if perfil.get("ingreso", 0) > 0 and not perfil.get("onboarding_done"):
+        if "tiene_vivienda" in str(session.get("messages", [])):
+            perfil["onboarding_done"] = True
 
     return perfil, gastos
 
