@@ -332,41 +332,65 @@
 
   function updateBudget(b) {
     if (!b) return;
-    if (b.ingreso && b.ingreso > ingresoRef) ingresoRef = b.ingreso;
+    if (b.ingreso && b.ingreso > 0) ingresoRef = b.ingreso;
 
-    const items = [
-      ['fillVivienda',   'amtVivienda',   b.vivienda_pct],
-      ['fillComida',     'amtComida',     b.comida_pct],
-      ['fillTransporte', 'amtTransporte', b.transporte_pct],
-      ['fillSalud',      'amtSalud',      b.salud_pct],
-      ['fillEducacion',  'amtEducacion',  b.educacion_pct],
-      ['fillOcio',       'amtOcio',       b.ocio_pct],
-      ['fillRopa',       'amtRopa',       b.ropa_pct],
-      ['fillDeudas',     'amtDeudas',     b.deudas_pct],
-      ['fillAhorro',     'amtAhorro',     b.ahorro_pct],
-      ['fillMeta',       'amtMeta',       b.meta_pct],
+    const limites = {
+      vivienda:   0.30, comida:     0.12, transporte: 0.12,
+      salud:      0.08, educacion:  0.02, ocio:       0.07,
+      ropa:       0.03, deudas:     0.08
+    };
+
+    const cats = [
+      ['vivienda',   'fillVivienda',   'amtVivienda'],
+      ['comida',     'fillComida',     'amtComida'],
+      ['transporte', 'fillTransporte', 'amtTransporte'],
+      ['salud',      'fillSalud',      'amtSalud'],
+      ['educacion',  'fillEducacion',  'amtEducacion'],
+      ['ocio',       'fillOcio',       'amtOcio'],
+      ['ropa',       'fillRopa',       'amtRopa'],
+      ['deudas',     'fillDeudas',     'amtDeudas'],
     ];
 
-    items.forEach(([fillId, amtId, pct]) => {
+    cats.forEach(([cat, fillId, amtId]) => {
       const fill = document.getElementById(fillId);
       const amt  = document.getElementById(amtId);
-      if (!fill || !amt || pct === undefined) return;
-      const safePct = Math.min(Math.max(pct, 0), 100);
-      fill.style.width = safePct + '%';
-      fill.className = `budget-fill ${colorClass(safePct)}`;
-      amt.textContent = safePct + '%';
+      if (!fill || !amt) return;
+      const pct    = b[cat + '_pct'] || 0;
+      const limite = ingresoRef * (limites[cat] || 0.05);
+      const gastado = Math.round(ingresoRef * pct / 100);
+      const usoPct = limite > 0 ? Math.min((gastado / limite) * 100, 100) : 0;
+      fill.style.width = usoPct + '%';
+      fill.className = `budget-fill ${usoPct >= 90 ? 'red' : usoPct >= 70 ? 'yellow' : 'green'}`;
+      amt.textContent = gastado > 0
+        ? `$${gastado.toLocaleString('es-MX')} / $${Math.round(limite).toLocaleString('es-MX')} (${Math.round(usoPct)}%)`
+        : '—';
     });
 
+    // Ahorro
+    const ahorroReal = Math.round(ingresoRef * (b.ahorro_pct || 0) / 100);
+    const ahorroLimite = Math.round(ingresoRef * 0.15);
+    const ahorroUso = ahorroLimite > 0 ? Math.min((ahorroReal / ahorroLimite) * 100, 100) : 0;
+    const fillA = document.getElementById('fillAhorro');
+    const amtA  = document.getElementById('amtAhorro');
+    if (fillA) { fillA.style.width = ahorroUso + '%'; fillA.className = `budget-fill ${ahorroUso >= 100 ? 'green' : ahorroUso >= 50 ? 'yellow' : 'red'}`; }
+    if (amtA)  amtA.textContent = ahorroReal > 0 ? `$${ahorroReal.toLocaleString('es-MX')} / $${ahorroLimite.toLocaleString('es-MX')} (${Math.round(ahorroUso)}%)` : '—';
+
+    // Meta
+    const metaPct = b.meta_pct || 0;
+    const fillM = document.getElementById('fillMeta');
+    const amtM  = document.getElementById('amtMeta');
+    if (fillM) { fillM.style.width = Math.min(metaPct, 100) + '%'; fillM.className = `budget-fill ${metaPct >= 100 ? 'green' : metaPct >= 50 ? 'yellow' : 'red'}`; }
+    if (amtM)  amtM.textContent = metaPct > 0 ? `${Math.round(metaPct)}% de tu meta` : '—';
+
+    // Disponible
     if (b.disponible !== undefined) {
       const disp = b.disponible;
       const ref  = ingresoRef || 10000;
       const pctDisp = Math.min(100, Math.max(0, (disp / ref) * 100));
       const fillD = document.getElementById('fillDisp');
       const amtD  = document.getElementById('amtDisp');
-      fillD.style.width = pctDisp + '%';
-      fillD.style.background = disp > ref * 0.5 ? '#4ade80' : disp > ref * 0.2 ? '#facc15' : '#f87171';
-      amtD.textContent = '$' + disp.toLocaleString('es-MX');
-      amtD.style.color  = disp > ref * 0.2 ? '#4ade80' : '#f87171';
+      if (fillD) { fillD.style.width = pctDisp + '%'; fillD.style.background = disp > ref * 0.5 ? '#4ade80' : disp > ref * 0.2 ? '#facc15' : '#f87171'; }
+      if (amtD)  { amtD.textContent = '$' + disp.toLocaleString('es-MX'); amtD.style.color = disp > ref * 0.2 ? '#4ade80' : '#f87171'; }
     }
   }
 
