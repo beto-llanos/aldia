@@ -191,7 +191,7 @@ def calculate_budget_data(perfil, gastos):
     def pct(cat):
         return round((gastos.get(cat, 0) / ingreso) * 100, 1)
 
-    ahorro_real = max(0, disponible)
+    ahorro_real = gastos.get("ahorro", 0)
     ahorro_pct = round((ahorro_real / ingreso) * 100, 1)
     meta_pct = round((ahorro_real / meta) * 100, 1) if meta > 0 else 0
 
