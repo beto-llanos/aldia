@@ -889,7 +889,7 @@
       ? `Paso ${step} de ${total}` : '';
     document.getElementById('ob-back').disabled = currentSlide === 0;
 
-    if (currentSlide === totalSlides - 1) { buildSuccessScreen(); generatePlan(); }
+    if (currentSlide === totalSlides) { buildSuccessScreen(); generatePlan(); }
   }
 
   function selectOption(key, value, el) {

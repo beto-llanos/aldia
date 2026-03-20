@@ -316,5 +316,52 @@ def reset():
     session.clear()
     return jsonify({"status": "ok"})
 
+@app.route("/api/generar-plan", methods=["POST"])
+def generar_plan():
+    data = request.json
+    ingreso = float(data.get("ingreso", 0))
+    meta = float(data.get("meta", 0))
+    estrictez = data.get("estrictez", "equilibrado")
+    tiene_vivienda = data.get("vivienda", True) is not False
+    tiene_transporte = data.get("transporte", True) is not False
+    tiene_deudas = data.get("deudas", True) is not False
+    meta_tipo = data.get("meta_tipo", "ahorrar")
+
+    pct_ahorro = {"relajado": 0.10, "equilibrado": 0.20, "agresivo": 0.35}.get(estrictez, 0.20)
+    ahorro_mensual = round(ingreso * pct_ahorro)
+    meses = round(meta / ahorro_mensual) if ahorro_mensual > 0 else 999
+    es_viable = meses <= 60
+
+    prompt = f"""Eres ALD.IA, un asistente financiero empático para jóvenes mexicanos.
+
+El usuario acaba de completar su onboarding con estos datos:
+- Ingreso mensual: ${ingreso:,.0f} pesos
+- Meta: ${meta:,.0f} pesos ({meta_tipo})
+- Plan: {estrictez}
+- Paga vivienda: {tiene_vivienda}
+- Tiene transporte: {tiene_transporte}
+- Tiene deudas: {tiene_deudas}
+- Ahorro mensual estimado: ${ahorro_mensual:,.0f} ({int(pct_ahorro*100)}%)
+- Meses estimados para meta: {meses}
+- ¿Es viable en menos de 5 años?: {es_viable}
+
+Genera un plan financiero personalizado en máximo 6 líneas que incluya:
+1. Si la meta es viable o no (con respeto y empatía si no lo es)
+2. Si no es viable, sugiere una meta alternativa alcanzable
+3. Cuánto ahorrar al mes y en cuánto tiempo llega
+4. Una recomendación concreta para su situación
+5. Una frase motivadora al final
+
+Usa emojis, sé directo pero empático. En español casual. Máximo 6 líneas."""
+
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.7,
+        max_tokens=300
+    )
+
+    return jsonify({"plan": response.choices[0].message.content.strip()})
+
 if __name__ == "__main__":
     app.run(debug=True)
