@@ -10,48 +10,116 @@ import re
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = "sofia-shadow-works-2026"
+app.secret_key = "aldia-shadow-works-2026"
 CORS(app)
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
+# Porcentajes sugeridos por Andy
+PORCENTAJES_BASE = {
+    "vivienda": 30,
+    "comida": 12,
+    "transporte": 12,
+    "salud": 8,
+    "educacion": 2,
+    "ocio": 7,
+    "ropa": 3,
+    "deudas": 8,
+    "ahorro": 15,
+    "imprevistos": 3
+}
+
+GASTO_PATTERN = re.compile(
+    r'(?:gasté|gaste|compré|compre|pagué|pague|costó|costo|gasto)\s+\$?\s*(\d[\d,\.]*)\s*(?:pesos?|mxn)?\s*(?:en\s+(.{1,60}))?',
+    re.IGNORECASE
+)
+
+def classify_gasto(desc):
+    if not desc:
+        return "otros"
+    d = desc.lower()
+    if any(w in d for w in ['renta', 'alquiler', 'hipoteca', 'luz', 'agua', 'gas', 'internet', 'telefono', 'celular', 'seguro casa', 'vivienda']):
+        return "vivienda"
+    if any(w in d for w in ['super', 'supermercado', 'comida', 'taco', 'tacos', 'restaurante', 'comer', 'almuerzo', 'desayuno', 'cena', 'pizza', 'hamburguesa', 'torta', 'delivery', 'rappi', 'uber eats', 'snack', 'mercado']):
+        return "comida"
+    if any(w in d for w in ['uber', 'taxi', 'camion', 'metro', 'gasolina', 'transporte', 'bus', 'didi', 'autobus', 'tren', 'peaje', 'estacionamiento', 'mantenimiento auto', 'seguro auto']):
+        return "transporte"
+    if any(w in d for w in ['doctor', 'medico', 'medicina', 'farmacia', 'hospital', 'consulta', 'gym', 'gimnasio', 'dentista', 'salud', 'higiene', 'farmacia']):
+        return "salud"
+    if any(w in d for w in ['curso', 'libro', 'certificacion', 'escuela', 'universidad', 'colegio', 'educacion', 'formacion', 'capacitacion', 'clase']):
+        return "educacion"
+    if any(w in d for w in ['netflix', 'spotify', 'cine', 'juego', 'hbo', 'disney', 'prime', 'entretenimiento', 'concierto', 'evento', 'hobby', 'streaming', 'claude', 'chatgpt', 'app', 'software', 'suscripcion', 'tecnologia']):
+        return "ocio"
+    if any(w in d for w in ['ropa', 'zapatos', 'camisa', 'pantalon', 'vestido', 'tenis', 'calzado', 'accesorio', 'bolsa', 'cartera']):
+        return "ropa"
+    if any(w in d for w in ['deuda', 'credito', 'prestamo', 'tarjeta', 'pago minimo', 'abono', 'credito']):
+        return "deudas"
+    if any(w in d for w in ['ahorro', 'inversion', 'fondo', 'deposito']):
+        return "ahorro"
+    if any(w in d for w in ['impuesto', 'isr', 'iva', 'sat', 'imptos', 'declaracion', 'fiscal']):
+        return "imprevistos"
+    return "imprevistos"
 
 def get_system_prompt(perfil, gastos):
     now = datetime.now()
     fecha = now.strftime("%B %Y")
     dia = now.day
-
     ingreso = perfil.get("ingreso", 0)
     meta = perfil.get("meta", 0)
     meta_plazo = perfil.get("plazo", "")
     total_gastado = sum(gastos.values())
     disponible = ingreso - total_gastado
 
+    # Calcular límites y alertas
+    limites = {cat: round(ingreso * pct / 100) for cat, pct in PORCENTAJES_BASE.items()} if ingreso > 0 else {}
+    alertas = []
+    for cat, limite in limites.items():
+        gastado = gastos.get(cat, 0)
+        if limite > 0 and gastado >= limite * 0.85:
+            pct_usado = round(gastado / limite * 100)
+            alertas.append(f"{cat}: {pct_usado}% usado (límite ${limite:,.0f})")
+
     contexto = f"""PERFIL DEL USUARIO:
 - Ingreso mensual: ${ingreso:,.0f} pesos
 - Meta: ahorrar ${meta:,.0f} pesos {meta_plazo}
-- Gastos registrados este mes: {json.dumps(gastos, ensure_ascii=False)}
+- Gastos registrados: {json.dumps(gastos, ensure_ascii=False)}
 - Total gastado: ${total_gastado:,.0f} pesos
 - Disponible real: ${disponible:,.0f} pesos
-- Día del mes: {dia}"""
+- Límites sugeridos por categoría: {json.dumps(limites, ensure_ascii=False)}
+- ALERTAS ACTIVAS: {alertas if alertas else 'ninguna'}
+- Día del mes: {dia}""" if ingreso > 0 else "El usuario aún no ha dado su perfil financiero."
 
-    return f"""Eres SOFIA, una asistente financiera personal en español para jóvenes mexicanos. Hoy es {fecha}, día {dia}.
+    return f"""Eres ALD.IA (Automatización de Liquidación Diaria con Inteligencia Artificial), una asistente financiera personal en español para jóvenes mexicanos. Hoy es {fecha}, día {dia}.
 
-{contexto if ingreso > 0 else "El usuario aún no ha dado su perfil financiero."}
+{contexto}
 
-CATEGORIAS: Comida (restaurantes, super, tacos), Transporte (uber, taxi, metro, gasolina), Entretenimiento (Netflix, Spotify, cine, juegos), Tecnologia (apps, Claude, ChatGPT, software), Ropa, Salud (gym, doctor), Gustos (perfumes, caprichos, lujos), Otros.
+CATEGORIAS (usa estas exactas):
+- vivienda: renta, luz, agua, internet, teléfono, seguro de casa
+- comida: super, restaurantes, delivery, snacks, mercado
+- transporte: uber, taxi, metro, gasolina, mantenimiento auto
+- salud: doctor, medicamentos, gym, higiene personal
+- educacion: cursos, libros, certificaciones, escuela
+- ocio: streaming, cine, eventos, hobbies, apps, software, Claude, ChatGPT
+- ropa: ropa, zapatos, accesorios
+- deudas: tarjetas de crédito, préstamos
+- ahorro: fondo de emergencia, inversiones
+- imprevistos: impuestos, regalos, mascotas, gastos inesperados
 
 REGLAS:
 - Español casual y amigable, nunca condescendiente
-- USA SIEMPRE los números del PERFIL DEL USUARIO — nunca inventes cifras
-- El disponible real es ${disponible:,.0f} — usa ese número, no calcules por tu cuenta
-- Nunca regañes, enfoca en lo que SÍ puede gastar
+- USA SIEMPRE los números del PERFIL — nunca inventes cifras
+- El disponible real es ${disponible:,.0f} — usa ese número exacto
+- Si hay ALERTAS ACTIVAS, menciónalas con emoji ⚠️ de forma amigable, no regañona
+- Si la meta es imposible con el ingreso actual, dilo con respeto y sugiere una meta realista
+- Cuando no hay perfil, haz máximo 2 preguntas: ingreso y meta
 - Máximo 4 líneas por respuesta
+- Si detectas un gasto de impuestos, clasifícalo en imprevistos y explícalo
 
 INSTRUCCION CRITICA: Al final de CADA respuesta agrega exactamente:
-BUDGET_DATA:{{"comida_pct":0,"transporte_pct":0,"tecnologia_pct":0,"gustos_pct":0,"ahorro_pct":0,"meta_pct":0,"disponible":{disponible}}}
+BUDGET_DATA:{{"vivienda_pct":0,"comida_pct":0,"transporte_pct":0,"salud_pct":0,"educacion_pct":0,"ocio_pct":0,"ropa_pct":0,"deudas_pct":0,"ahorro_pct":0,"meta_pct":0,"disponible":{disponible},"ingreso":{ingreso}}}
 
-Rellena los _pct con porcentajes reales basados en los gastos del perfil vs el ingreso.
-disponible siempre debe ser {disponible}."""
+Rellena los _pct con porcentajes reales (gasto de esa categoria / ingreso * 100).
+disponible siempre debe ser {disponible}, ingreso siempre debe ser {ingreso}."""
 
 def get_session():
     if "messages" not in session:
@@ -59,74 +127,55 @@ def get_session():
     if "perfil" not in session:
         session["perfil"] = {"ingreso": 0, "meta": 0, "plazo": ""}
     if "gastos" not in session:
-        session["gastos"] = {
-            "comida": 0, "transporte": 0, "tecnologia": 0,
-            "gustos": 0, "ropa": 0, "salud": 0, "entretenimiento": 0, "otros": 0
-        }
+        session["gastos"] = {cat: 0 for cat in PORCENTAJES_BASE.keys()}
     return session["messages"], session["perfil"], session["gastos"]
 
-def extract_numbers(text):
-    numbers = re.findall(r'[\$]?\s*(\d+(?:,\d{3})*(?:\.\d+)?)\s*(?:pesos?|mxn)?', text.lower())
-    return [float(n.replace(',', '')) for n in numbers]
-
-GASTO_PATTERN = re.compile(
-    r'(?:gasté|gaste|compré|compre|pagué|pague|costó|costo|gasta)\s+\$?\s*(\d+(?:,\d{3})*(?:\.\d+)?)\s*(?:pesos?)?\s*(?:en\s+)?([^\n\.]{0,60})',
-    re.IGNORECASE
-)
-
-def classify_gasto(description):
-    d = description.lower()
-    if any(w in d for w in ['super', 'supermercado', 'comida', 'taco', 'tacos', 'restaurante', 'comer', 'almorzar', 'desayun', 'cenar', 'pizza', 'hamburguesa', 'torta']):
-        return "comida"
-    elif any(w in d for w in ['uber', 'taxi', 'camion', 'metro', 'gasolina', 'transporte', 'bus', 'didi']):
-        return "transporte"
-    elif any(w in d for w in ['netflix', 'spotify', 'cine', 'juego', 'hbo', 'disney', 'prime', 'entretenimiento']):
-        return "entretenimiento"
-    elif any(w in d for w in ['claude', 'chatgpt', 'app', 'software', 'hosting', 'dominio', 'tecnologia', 'suscripcion']):
-        return "tecnologia"
-    elif any(w in d for w in ['ropa', 'zapatos', 'camisa', 'pantalon', 'vestido', 'tenis']):
-        return "ropa"
-    elif any(w in d for w in ['gym', 'doctor', 'medicina', 'farmacia', 'salud', 'hospital']):
-        return "salud"
-    elif any(w in d for w in ['perfume', 'capricho', 'lujo', 'gusto', 'regalo']):
-        return "gustos"
-    return "otros"
+def extract_ingreso(line):
+    match = re.search(r'\$?\s*(\d[\d,\.]*)\s*(?:pesos?|mxn)?', line, re.IGNORECASE)
+    if match:
+        return float(match.group(1).replace(',', ''))
+    return None
 
 def update_perfil_and_gastos(user_message, perfil, gastos):
     msg = user_message.lower()
-    numbers = extract_numbers(user_message)
 
-    # Detect ingreso — only if no gasto keyword present in same sentence
-    ingreso_line = next((l for l in msg.splitlines() if any(w in l for w in ['gano', 'gana', 'ingreso', 'salario', 'sueldo', 'recibo'])), None)
-    if ingreso_line:
-        line_nums = extract_numbers(ingreso_line)
-        if line_nums:
-            perfil["ingreso"] = line_nums[0]
+    # Detect ingreso — line by line to avoid confusing with gastos
+    for line in msg.split('\n'):
+        if any(w in line for w in ['gano', 'gana', 'ingreso', 'salario', 'sueldo', 'recibo', 'gano como']):
+            n = extract_ingreso(line)
+            if n and n > 0:
+                perfil["ingreso"] = n
+                break
 
     # Detect meta
-    if any(w in msg for w in ['meta', 'ahorrar', 'quiero tener', 'objetivo']) and numbers:
-        for n in numbers:
-            if n > perfil.get("ingreso", 0):
+    if any(w in msg for w in ['meta', 'ahorrar', 'quiero tener', 'objetivo', 'guardar']):
+        ingreso = perfil.get("ingreso", 0)
+        matches = re.findall(r'\$?\s*(\d[\d,\.]*)\s*(?:pesos?|mxn)?', msg)
+        for m in matches:
+            n = float(m.replace(',', ''))
+            if n > ingreso and n > 1000:
                 perfil["meta"] = n
                 break
 
     # Detect plazo
-    for plazo in ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-                  'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']:
+    for plazo in ['enero','febrero','marzo','abril','mayo','junio',
+                  'julio','agosto','septiembre','octubre','noviembre','diciembre']:
         if plazo in msg:
             perfil["plazo"] = f"para {plazo}"
+    for w in ['12 meses','6 meses','3 meses','1 año','2 años']:
+        if w in msg:
+            perfil["plazo"] = f"en {w}"
 
-    if 'año' in msg or 'meses' in msg or 'semanas' in msg:
-        for w in ['12 meses', '6 meses', '3 meses', '1 año', '2 años']:
-            if w in msg:
-                perfil["plazo"] = f"en {w}"
-
-    # Detect gastos — use regex to find (amount, description) pairs so multiple gastos work
-    matches = GASTO_PATTERN.findall(user_message)
-    for amount_str, description in matches:
-        amount = float(amount_str.replace(',', ''))
-        category = classify_gasto(description)
-        gastos[category] += amount
+    # Detect gastos with GASTO_PATTERN
+    for match in GASTO_PATTERN.finditer(user_message):
+        amount_str = match.group(1).replace(',', '')
+        try:
+            amount = float(amount_str)
+        except:
+            continue
+        desc = match.group(2) or ""
+        cat = classify_gasto(desc)
+        gastos[cat] = gastos.get(cat, 0) + amount
 
     return perfil, gastos
 
@@ -140,22 +189,37 @@ def calculate_budget_data(perfil, gastos):
     disponible = ingreso - total_gastado
 
     def pct(cat):
-        return round((gastos.get(cat, 0) / ingreso) * 100, 1) if ingreso > 0 else 0
+        return round((gastos.get(cat, 0) / ingreso) * 100, 1)
 
-    ahorro = max(0, disponible)
-    ahorro_pct = round((ahorro / ingreso) * 100, 1) if ingreso > 0 else 0
-    meta_pct = round((ahorro / meta) * 100, 1) if meta > 0 else 0
+    ahorro_real = max(0, disponible)
+    ahorro_pct = round((ahorro_real / ingreso) * 100, 1)
+    meta_pct = round((ahorro_real / meta) * 100, 1) if meta > 0 else 0
 
     return {
-        "comida_pct": pct("comida"),
+        "vivienda_pct":   pct("vivienda"),
+        "comida_pct":     pct("comida"),
         "transporte_pct": pct("transporte"),
-        "tecnologia_pct": pct("tecnologia") + pct("entretenimiento"),
-        "gustos_pct": pct("gustos") + pct("ropa"),
-        "ahorro_pct": ahorro_pct,
-        "meta_pct": min(meta_pct, 100),
-        "disponible": round(disponible),
-        "ingreso": ingreso
+        "salud_pct":      pct("salud"),
+        "educacion_pct":  pct("educacion"),
+        "ocio_pct":       pct("ocio"),
+        "ropa_pct":       pct("ropa"),
+        "deudas_pct":     pct("deudas"),
+        "ahorro_pct":     ahorro_pct,
+        "meta_pct":       min(meta_pct, 100),
+        "disponible":     round(disponible),
+        "ingreso":        ingreso
     }
+
+def check_alerts(perfil, gastos):
+    ingreso = perfil.get("ingreso", 0)
+    if ingreso == 0:
+        return False
+    for cat, pct in PORCENTAJES_BASE.items():
+        limite = ingreso * pct / 100
+        gastado = gastos.get(cat, 0)
+        if limite > 0 and gastado >= limite * 0.85:
+            return True
+    return False
 
 @app.route("/")
 def index():
@@ -167,7 +231,6 @@ def chat():
     user_message = data.get("message", "")
     messages, perfil, gastos = get_session()
 
-    # Update perfil and gastos from user message
     perfil, gastos = update_perfil_and_gastos(user_message, perfil, gastos)
     session["perfil"] = perfil
     session["gastos"] = gastos
@@ -182,25 +245,21 @@ def chat():
     )
 
     full_response = response.choices[0].message.content
-
-    # Extract and strip BUDGET_DATA
     clean_response = full_response
     budget_match = re.search(r'BUDGET_DATA:(\{.*?\})', full_response)
     if budget_match:
-        try:
-            clean_response = full_response.replace(budget_match.group(0), "").strip()
-        except:
-            pass
+        clean_response = full_response.replace(budget_match.group(0), "").strip()
 
     messages.append({"role": "assistant", "content": clean_response})
     session["messages"] = messages
 
-    # Always calculate budget from real data
     budget_data = calculate_budget_data(perfil, gastos)
+    has_alert = check_alerts(perfil, gastos)
 
     return jsonify({
         "response": clean_response,
-        "budget": budget_data
+        "budget": budget_data,
+        "alert": has_alert
     })
 
 @app.route("/api/reset", methods=["POST"])
