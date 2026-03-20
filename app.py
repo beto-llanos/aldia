@@ -293,6 +293,24 @@ def chat():
         "alert": has_alert
     })
 
+@app.route("/api/setup", methods=["POST"])
+def setup():
+    data = request.json
+    messages, perfil, gastos = get_session()
+    if data.get("ingreso"):
+        perfil["ingreso"] = float(data["ingreso"])
+    if data.get("meta"):
+        perfil["meta"] = float(data["meta"])
+    if data.get("meta_tipo"):
+        perfil["meta_tipo"] = data["meta_tipo"]
+    perfil["tiene_vivienda"]   = data.get("vivienda", True) is not False
+    perfil["tiene_transporte"] = data.get("transporte", True) is not False
+    perfil["tiene_deudas"]     = data.get("deudas", True) is not False
+    perfil["tiene_educacion"]  = data.get("educacion", True) is not False
+    perfil["onboarding_done"]  = True
+    session["perfil"] = perfil
+    return jsonify({"status": "ok"})
+
 @app.route("/api/reset", methods=["POST"])
 def reset():
     session.clear()
