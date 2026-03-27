@@ -448,5 +448,60 @@ def logout():
     session.clear()
     return jsonify({"status": "ok"})
 
+@app.route("/api/resumen", methods=["GET"])
+def resumen():
+    session_id = get_session_id()
+    perfil = load_perfil(session_id)
+    gastos = load_gastos(session_id)
+    
+    ingreso = perfil.get("ingreso", 0)
+    if ingreso == 0:
+        return jsonify({"resumen": None})
+    
+    total_gastado = sum(gastos.values())
+    disponible = ingreso - total_gastado
+    dia = datetime.now().day
+    
+    # Categoría más gastada
+    porcentajes_activos = calcular_porcentajes_activos(perfil)
+    cat_critica = None
+    pct_critico = 0
+    for cat, pct in porcentajes_activos.items():
+        limite = ingreso * pct / 100
+        gastado = gastos.get(cat, 0)
+        if limite > 0:
+            uso = gastado / limite * 100
+            if uso > pct_critico:
+                pct_critico = uso
+                cat_critica = cat
+    
+    prompt = f"""Eres ALD.IA, asistente financiera empática para jóvenes mexicanos.
+
+El usuario acaba de abrir la app. Genera un resumen proactivo del mes en máximo 3 líneas:
+
+Datos:
+- Día del mes: {dia}
+- Ingreso mensual: ${ingreso:,.0f}
+- Total gastado: ${total_gastado:,.0f}
+- Disponible: ${disponible:,.0f}
+- Categoría más usada: {cat_critica} ({round(pct_critico)}% de su límite)
+- Meta: ${perfil.get('meta', 0):,.0f}
+
+El mensaje debe:
+1. Saludar de vuelta brevemente
+2. Dar 1-2 datos clave del mes en curso
+3. Una observación o consejo corto
+4. Terminar con pregunta corta tipo "¿seguimos?"
+
+Español casual, emojis, máximo 3 líneas."""
+
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.7,
+        max_tokens=150
+    )
+    return jsonify({"resumen": response.choices[0].message.content.strip()})
+
 if __name__ == "__main__":
     app.run(debug=True)

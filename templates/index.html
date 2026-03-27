@@ -625,7 +625,9 @@ async function doLogin() {
       if (data.onboarding_done) {
         document.getElementById('onboarding').style.display = 'none';
         document.getElementById('chat').classList.add('active');
-        addMessage('aldia', '¡Bienvenido de vuelta! 👋 ¿En qué te ayudo hoy?');
+        fetch('/api/resumen').then(r => r.json()).then(d => {
+          addMessage('aldia', d.resumen || '¡Bienvenido de vuelta! 👋 ¿En qué te ayudo hoy?');
+        });
       } else {
         document.getElementById('onboarding').style.display = 'flex';
       }
