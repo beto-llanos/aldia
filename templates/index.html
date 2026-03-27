@@ -7,764 +7,269 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #080b12;
-      --surface: #0e1320;
-      --surface2: #141929;
-      --border: #1e2740;
-      --accent: #3b82f6;
-      --accent2: #60a5fa;
-      --green: #22c55e;
-      --yellow: #eab308;
-      --red: #ef4444;
-      --text: #f1f5f9;
-      --muted: #64748b;
-      --muted2: #94a3b8;
-      --font: 'Plus Jakarta Sans', sans-serif;
+      --bg:#080b12;--surface:#0e1320;--surface2:#141929;--border:#1e2740;
+      --accent:#3b82f6;--accent2:#60a5fa;--green:#22c55e;--yellow:#eab308;
+      --red:#ef4444;--text:#f1f5f9;--muted:#64748b;--muted2:#94a3b8;
+      --font:'Plus Jakarta Sans',sans-serif;
     }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-    body {
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
-      height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      user-select: none;
-    }
-
-    @supports (-webkit-touch-callout: none) {
-      body { height: -webkit-fill-available; }
-    }
-
-    /* ─── ONBOARDING ──────────────────────────────────────────────── */
-    #onboarding {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 0;
-    }
-
-    .ob-header {
-      padding: 20px 24px 16px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-shrink: 0;
-    }
-
-    .ob-back {
-      width: 36px; height: 36px;
-      background: var(--surface2);
-      border: none; border-radius: 10px;
-      color: var(--muted2); cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; transition: all 0.15s;
-      flex-shrink: 0;
-    }
-    .ob-back:hover { background: var(--border); color: var(--text); }
-    .ob-back:disabled { opacity: 0.3; cursor: default; }
-
-    .ob-progress-wrap { flex: 1; }
-
-    .ob-step-label {
-      font-size: 11px; color: var(--muted); font-weight: 600;
-      letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;
-    }
-
-    .ob-progress-track {
-      height: 6px; background: var(--surface2);
-      border-radius: 99px; overflow: hidden;
-    }
-
-    .ob-progress-fill {
-      height: 100%; background: var(--accent);
-      border-radius: 99px;
-      transition: width 0.4s cubic-bezier(.4,0,.2,1);
-    }
-
-    .ob-body {
-      flex: 1;
-      padding: 8px 24px 24px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .ob-slide {
-      display: none;
-      flex-direction: column;
-      height: 100%;
-      animation: slideIn 0.3s cubic-bezier(.4,0,.2,1);
-    }
-    .ob-slide.active { display: flex; }
-
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(20px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-    @keyframes slideOut {
-      from { opacity: 1; transform: translateX(0); }
-      to   { opacity: 0; transform: translateX(-20px); }
-    }
-
-    .ob-emoji {
-      font-size: 52px; margin-bottom: 20px;
-      animation: popIn 0.4s cubic-bezier(.34,1.56,.64,1);
-    }
-    @keyframes popIn {
-      from { transform: scale(0.5); opacity: 0; }
-      to   { transform: scale(1); opacity: 1; }
-    }
-
-    .ob-question {
-      font-size: 24px; font-weight: 800;
-      line-height: 1.25; margin-bottom: 8px; color: var(--text);
-    }
-
-    .ob-sub {
-      font-size: 14px; color: var(--muted2);
-      line-height: 1.5; margin-bottom: 28px;
-    }
-
-    .ob-options {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      flex: 1;
-      overflow-y: auto;
-    }
-
-    .ob-option {
-      background: var(--surface);
-      border: 2px solid var(--border);
-      border-radius: 16px;
-      padding: 16px 20px;
-      cursor: pointer;
-      transition: all 0.15s;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      text-align: left;
-    }
-
-    .ob-option:hover { border-color: var(--accent); background: rgba(59,130,246,0.08); }
-    .ob-option.selected {
-      border-color: var(--accent);
-      background: rgba(59,130,246,0.15);
-    }
-    .ob-option.selected .ob-opt-icon { background: var(--accent); }
-
-    .ob-opt-icon {
-      width: 44px; height: 44px; flex-shrink: 0;
-      background: var(--surface2); border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px; transition: background 0.15s;
-    }
-
-    .ob-opt-text { flex: 1; }
-    .ob-opt-title { font-size: 15px; font-weight: 700; color: var(--text); }
-    .ob-opt-desc { font-size: 12px; color: var(--muted2); margin-top: 2px; }
-
-    .ob-check {
-      width: 22px; height: 22px; flex-shrink: 0;
-      border: 2px solid var(--border); border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.15s; font-size: 12px;
-    }
-    .ob-option.selected .ob-check {
-      background: var(--accent); border-color: var(--accent); color: white;
-    }
-
-    /* Amount input */
-    .ob-amount-wrap {
-      background: var(--surface);
-      border: 2px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transition: border-color 0.15s;
-    }
-    .ob-amount-wrap:focus-within { border-color: var(--accent); }
-
-    .ob-currency {
-      font-size: 28px; font-weight: 800;
-      color: var(--muted); flex-shrink: 0;
-    }
-
-    .ob-amount-input {
-      flex: 1; background: none; border: none;
-      color: var(--text); font-size: 32px;
-      font-weight: 800; font-family: var(--font);
-      outline: none; min-width: 0;
-    }
-    .ob-amount-input::placeholder { color: var(--border); }
-
-    .ob-amount-hint {
-      font-size: 13px; color: var(--muted);
-      margin-top: 10px; padding: 0 4px;
-    }
-
-    .ob-cta {
-      margin-top: 20px;
-      background: var(--accent);
-      color: white;
-      border: none; border-radius: 16px;
-      padding: 18px;
-      font-size: 16px; font-weight: 700;
-      font-family: var(--font);
-      cursor: pointer;
-      transition: all 0.15s;
-      width: 100%;
-      flex-shrink: 0;
-    }
-    .ob-cta:hover { background: #2563eb; transform: translateY(-1px); }
-    .ob-cta:active { transform: translateY(0); }
-    .ob-cta:disabled { background: var(--border); color: var(--muted); cursor: default; transform: none; }
-
-    /* Welcome screen */
-    .ob-welcome {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      text-align: center; padding: 32px 24px;
-      gap: 20px;
-    }
-
-    .ob-logo {
-      width: 80px; height: 80px;
-      background: linear-gradient(135deg, #1d4ed8, #3b82f6);
-      border-radius: 24px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 28px; font-weight: 900; color: white;
-      letter-spacing: -1px;
-      box-shadow: 0 0 40px rgba(59,130,246,0.3);
-      animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
-    }
-
-    .ob-welcome h1 { font-size: 32px; font-weight: 900; line-height: 1.1; }
-    .ob-welcome h1 span { color: var(--accent2); }
-    .ob-welcome p { font-size: 16px; color: var(--muted2); line-height: 1.6; max-width: 320px; }
-
-    .ob-features {
-      display: flex; flex-direction: column; gap: 12px;
-      width: 100%; max-width: 340px;
-    }
-
-    .ob-feature {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px 16px;
-      display: flex; align-items: center; gap: 12px;
-      text-align: left;
-    }
-
-    .ob-feature-icon { font-size: 22px; flex-shrink: 0; }
-    .ob-feature-text { font-size: 13px; color: var(--muted2); line-height: 1.4; }
-    .ob-feature-text strong { color: var(--text); font-weight: 700; }
-
-    /* Success screen */
-    .ob-success {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      text-align: center; padding: 32px 24px; gap: 16px;
-    }
-
-    .ob-success-icon {
-      font-size: 72px;
-      animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
-    }
-
-    .ob-success h2 { font-size: 28px; font-weight: 900; }
-    .ob-success p { font-size: 15px; color: var(--muted2); line-height: 1.6; max-width: 300px; }
-
-    .ob-tags {
-      display: flex; flex-wrap: wrap; gap: 8px;
-      justify-content: center; max-width: 320px;
-    }
-
-    .ob-tag {
-      background: rgba(59,130,246,0.15);
-      border: 1px solid rgba(59,130,246,0.3);
-      color: var(--accent2);
-      padding: 6px 14px; border-radius: 99px;
-      font-size: 13px; font-weight: 600;
-    }
-
-    /* ─── CHAT ────────────────────────────────────────────────────── */
-    #chat {
-      display: none;
-      flex: 1;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    #chat.active { display: flex; }
-
-    .chat-header {
-      background: var(--surface);
-      padding: 14px 20px;
-      display: flex; align-items: center; gap: 12px;
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    .chat-avatar {
-      width: 36px; height: 36px;
-      background: linear-gradient(135deg, #1d4ed8, #3b82f6);
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 900; color: white;
-      flex-shrink: 0;
-    }
-
-    .chat-header-info h1 { font-size: 16px; font-weight: 800; }
-    .chat-header-info h1 span { color: var(--accent2); }
-    .chat-header-info p { font-size: 11px; color: var(--green); }
-
-    .chat-reset {
-      margin-left: auto;
-      background: none; border: 1px solid var(--border);
-      color: var(--muted); padding: 5px 12px;
-      border-radius: 8px; cursor: pointer; font-size: 11px;
-      font-family: var(--font); transition: all 0.15s;
-    }
-    .chat-reset:hover { border-color: var(--muted); color: var(--text); }
-
-    /* Budget grid */
-    .budget-grid {
-      background: var(--surface);
-      padding: 10px 16px;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    .budget-item { display: flex; flex-direction: column; gap: 3px; }
-
-    .budget-label {
-      font-size: 9px; color: var(--muted);
-      text-transform: uppercase; letter-spacing: 0.4px;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-
-    .budget-track {
-      height: 4px; background: var(--surface2);
-      border-radius: 99px; overflow: hidden;
-    }
-
-    .budget-fill {
-      height: 100%; border-radius: 99px;
-      transition: width 0.6s cubic-bezier(.4,0,.2,1); width: 0%;
-    }
-    .budget-fill.green  { background: var(--green); }
-    .budget-fill.yellow { background: var(--yellow); }
-    .budget-fill.red    { background: var(--red); }
-
-    .budget-amount { font-size: 9px; color: var(--muted); }
-
-    .disponible-bar {
-      background: var(--surface);
-      padding: 8px 16px 10px;
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    .disponible-inner { display: flex; align-items: center; gap: 10px; }
-    .disponible-label { font-size: 11px; color: var(--muted); white-space: nowrap; }
-    .disponible-track { flex: 1; height: 8px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
-    .disponible-fill { height: 100%; border-radius: 99px; transition: width 0.6s cubic-bezier(.4,0,.2,1); background: var(--green); }
-    .disponible-amount { font-size: 13px; font-weight: 800; color: var(--green); white-space: nowrap; min-width: 80px; text-align: right; }
-
-    /* Messages */
-    .messages {
-      flex: 1; overflow-y: auto;
-      padding: 16px; display: flex;
-      flex-direction: column; gap: 10px;
-      min-height: 0;
-    }
-
-    .message { display: flex; gap: 8px; max-width: 84%; animation: fadeUp 0.2s ease; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-    .message.user { align-self: flex-end; flex-direction: row-reverse; }
-
-    .bubble {
-      padding: 10px 14px; border-radius: 14px;
-      font-size: 14px; line-height: 1.6;
-    }
-
-    .message.aldia .bubble {
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 4px 14px 14px 14px; color: #cbd5e1;
-    }
-
-    .message.user .bubble {
-      background: #1d4ed8;
-      border-radius: 14px 4px 14px 14px; color: white;
-    }
-
-    .alert-bubble {
-      background: rgba(234,179,8,0.08) !important;
-      border-color: rgba(234,179,8,0.3) !important;
-      color: #fde047 !important;
-    }
-
-    .msg-avatar {
-      width: 28px; height: 28px; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 900; flex-shrink: 0; margin-top: 2px;
-    }
-    .aldia .msg-avatar { background: linear-gradient(135deg, #1d4ed8, #3b82f6); color: white; }
-    .user  .msg-avatar { background: var(--surface2); color: var(--muted); font-size: 14px; }
-
-    .typing { display: flex; gap: 4px; align-items: center; padding: 8px 12px; }
-    .typing span { width: 6px; height: 6px; background: var(--muted); border-radius: 50%; animation: bounce 1.2s infinite; }
-    .typing span:nth-child(2) { animation-delay: 0.2s; }
-    .typing span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} }
-
-    /* Quick actions */
-    .quick-actions {
-      display: flex; gap: 6px;
-      padding: 0 16px 10px;
-      overflow-x: auto; flex-shrink: 0;
-    }
-    .quick-btn {
-      background: var(--surface); border: 1px solid var(--border);
-      color: var(--muted2); padding: 5px 12px; border-radius: 99px;
-      font-size: 11px; font-weight: 600; font-family: var(--font);
-      cursor: pointer; white-space: nowrap; transition: all 0.15s;
-    }
-    .quick-btn:hover { border-color: var(--accent); color: var(--text); }
-
-    /* Input */
-    .input-area {
-      padding: 10px 16px;
-      padding-bottom: max(10px, env(safe-area-inset-bottom));
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      display: flex; gap: 8px; align-items: flex-end;
-      flex-shrink: 0;
-    }
-
-    .input-area textarea {
-      flex: 1; background: var(--bg);
-      border: 1px solid var(--border); border-radius: 12px;
-      color: var(--text); padding: 10px 14px; font-size: 14px;
-      font-family: var(--font); resize: none; outline: none;
-      max-height: 100px; line-height: 1.5;
-      transition: border-color 0.15s;
-    }
-    .input-area textarea:focus { border-color: var(--accent); }
-    .input-area textarea::placeholder { color: var(--border); }
-
-    .send-btn {
-      width: 40px; height: 40px;
-      background: var(--accent); border: none; border-radius: 12px;
-      cursor: pointer; display: flex; align-items: center;
-      justify-content: center; transition: all 0.15s; flex-shrink: 0;
-    }
-    .send-btn:hover { background: #2563eb; }
-    .send-btn:disabled { background: var(--border); cursor: default; }
-    .send-btn svg { width: 16px; height: 16px; fill: white; }
-
-    ::-webkit-scrollbar { width: 3px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);height:100dvh;display:flex;flex-direction:column;overflow:hidden;user-select:none}
+    @supports(-webkit-touch-callout:none){body{height:-webkit-fill-available}}
+
+    #onboarding{flex:1;display:flex;flex-direction:column}
+    .ob-header{padding:20px 24px 16px;display:flex;align-items:center;gap:16px;flex-shrink:0}
+    .ob-back{width:36px;height:36px;background:var(--surface2);border:none;border-radius:10px;color:var(--muted2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .15s;flex-shrink:0}
+    .ob-back:hover{background:var(--border);color:var(--text)}
+    .ob-back:disabled{opacity:.3;cursor:default}
+    .ob-progress-wrap{flex:1}
+    .ob-step-label{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}
+    .ob-progress-track{height:6px;background:var(--surface2);border-radius:99px;overflow:hidden}
+    .ob-progress-fill{height:100%;background:var(--accent);border-radius:99px;transition:width .4s cubic-bezier(.4,0,.2,1)}
+    .ob-body{flex:1;padding:8px 24px 24px;display:flex;flex-direction:column;overflow:hidden}
+    .ob-slide{display:none;flex-direction:column;height:100%;animation:slideIn .3s cubic-bezier(.4,0,.2,1)}
+    .ob-slide.active{display:flex}
+    @keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+    @keyframes popIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+    .ob-emoji{font-size:52px;margin-bottom:20px;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
+    .ob-question{font-size:24px;font-weight:800;line-height:1.25;margin-bottom:8px}
+    .ob-sub{font-size:14px;color:var(--muted2);line-height:1.5;margin-bottom:28px}
+    .ob-options{display:flex;flex-direction:column;gap:10px;flex:1;overflow-y:auto}
+    .ob-option{background:var(--surface);border:2px solid var(--border);border-radius:16px;padding:16px 20px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:14px;text-align:left}
+    .ob-option:hover{border-color:var(--accent);background:rgba(59,130,246,.08)}
+    .ob-option.selected{border-color:var(--accent);background:rgba(59,130,246,.15)}
+    .ob-option.selected .ob-opt-icon{background:var(--accent)}
+    .ob-opt-icon{width:44px;height:44px;flex-shrink:0;background:var(--surface2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;transition:background .15s}
+    .ob-opt-text{flex:1}
+    .ob-opt-title{font-size:15px;font-weight:700}
+    .ob-opt-desc{font-size:12px;color:var(--muted2);margin-top:2px}
+    .ob-check{width:22px;height:22px;flex-shrink:0;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:12px}
+    .ob-option.selected .ob-check{background:var(--accent);border-color:var(--accent);color:white}
+    .ob-amount-wrap{background:var(--surface);border:2px solid var(--border);border-radius:16px;padding:20px;display:flex;align-items:center;gap:12px;transition:border-color .15s}
+    .ob-amount-wrap:focus-within{border-color:var(--accent)}
+    .ob-currency{font-size:28px;font-weight:800;color:var(--muted);flex-shrink:0}
+    .ob-amount-input{flex:1;background:none;border:none;color:var(--text);font-size:32px;font-weight:800;font-family:var(--font);outline:none;min-width:0}
+    .ob-amount-input::placeholder{color:var(--border)}
+    .ob-amount-hint{font-size:13px;color:var(--muted);margin-top:10px;padding:0 4px}
+    .ob-cta{margin-top:20px;background:var(--accent);color:white;border:none;border-radius:16px;padding:18px;font-size:16px;font-weight:700;font-family:var(--font);cursor:pointer;transition:all .15s;width:100%;flex-shrink:0}
+    .ob-cta:hover{background:#2563eb;transform:translateY(-1px)}
+    .ob-cta:active{transform:translateY(0)}
+    .ob-cta:disabled{background:var(--border);color:var(--muted);cursor:default;transform:none}
+    .ob-welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px 24px;gap:20px}
+    .ob-logo{width:80px;height:80px;background:linear-gradient(135deg,#1d4ed8,#3b82f6);border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:white;letter-spacing:-1px;box-shadow:0 0 40px rgba(59,130,246,.3);animation:popIn .5s cubic-bezier(.34,1.56,.64,1)}
+    .ob-welcome h1{font-size:32px;font-weight:900;line-height:1.1}
+    .ob-welcome h1 span{color:var(--accent2)}
+    .ob-welcome p{font-size:16px;color:var(--muted2);line-height:1.6;max-width:320px}
+    .ob-features{display:flex;flex-direction:column;gap:12px;width:100%;max-width:340px}
+    .ob-feature{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;text-align:left}
+    .ob-feature-icon{font-size:22px;flex-shrink:0}
+    .ob-feature-text{font-size:13px;color:var(--muted2);line-height:1.4}
+    .ob-feature-text strong{color:var(--text);font-weight:700}
+    .ob-success{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:14px;overflow-y:auto}
+    .ob-success-icon{font-size:64px;animation:popIn .5s cubic-bezier(.34,1.56,.64,1)}
+    .ob-success h2{font-size:26px;font-weight:900}
+    .ob-success p{font-size:14px;color:var(--muted2);line-height:1.6;max-width:300px}
+    .ob-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:320px}
+    .ob-tag{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:var(--accent2);padding:6px 14px;border-radius:99px;font-size:13px;font-weight:600}
+
+    #chat{display:none;flex:1;flex-direction:column;overflow:hidden}
+    #chat.active{display:flex}
+    .chat-header{background:var(--surface);padding:14px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);flex-shrink:0}
+    .chat-avatar{width:36px;height:36px;background:linear-gradient(135deg,#1d4ed8,#3b82f6);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:white;flex-shrink:0}
+    .chat-header-info h1{font-size:16px;font-weight:800}
+    .chat-header-info h1 span{color:var(--accent2)}
+    .chat-header-info p{font-size:11px;color:var(--green)}
+    .chat-reset{margin-left:auto;background:none;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:8px;cursor:pointer;font-size:11px;font-family:var(--font);transition:all .15s}
+    .chat-reset:hover{border-color:var(--muted);color:var(--text)}
+    .budget-grid{background:var(--surface);padding:10px 16px;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;border-bottom:1px solid var(--border);flex-shrink:0}
+    .budget-item{display:flex;flex-direction:column;gap:3px}
+    .budget-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .budget-track{height:4px;background:var(--surface2);border-radius:99px;overflow:hidden}
+    .budget-fill{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1);width:0%}
+    .budget-fill.green{background:var(--green)}
+    .budget-fill.yellow{background:var(--yellow)}
+    .budget-fill.red{background:var(--red)}
+    .budget-amount{font-size:9px;color:var(--muted)}
+    .disponible-bar{background:var(--surface);padding:8px 16px 10px;border-bottom:1px solid var(--border);flex-shrink:0}
+    .disponible-inner{display:flex;align-items:center;gap:10px}
+    .disponible-label{font-size:11px;color:var(--muted);white-space:nowrap}
+    .disponible-track{flex:1;height:8px;background:var(--surface2);border-radius:99px;overflow:hidden}
+    .disponible-fill{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1);background:var(--green)}
+    .disponible-amount{font-size:13px;font-weight:800;color:var(--green);white-space:nowrap;min-width:80px;text-align:right}
+    .messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;min-height:0}
+    .message{display:flex;gap:8px;max-width:84%;animation:fadeUp .2s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .message.user{align-self:flex-end;flex-direction:row-reverse}
+    .bubble{padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.6}
+    .message.aldia .bubble{background:var(--surface2);border:1px solid var(--border);border-radius:4px 14px 14px 14px;color:#cbd5e1}
+    .message.user .bubble{background:#1d4ed8;border-radius:14px 4px 14px 14px;color:white}
+    .alert-bubble{background:rgba(234,179,8,.08)!important;border-color:rgba(234,179,8,.3)!important;color:#fde047!important}
+    .msg-avatar{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;margin-top:2px}
+    .aldia .msg-avatar{background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:white}
+    .user .msg-avatar{background:var(--surface2);color:var(--muted);font-size:14px}
+    .typing{display:flex;gap:4px;align-items:center;padding:8px 12px}
+    .typing span{width:6px;height:6px;background:var(--muted);border-radius:50%;animation:bounce 1.2s infinite}
+    .typing span:nth-child(2){animation-delay:.2s}
+    .typing span:nth-child(3){animation-delay:.4s}
+    @keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+    .quick-actions{display:flex;gap:6px;padding:0 16px 10px;overflow-x:auto;flex-shrink:0}
+    .quick-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted2);padding:5px 12px;border-radius:99px;font-size:11px;font-weight:600;font-family:var(--font);cursor:pointer;white-space:nowrap;transition:all .15s}
+    .quick-btn:hover{border-color:var(--accent);color:var(--text)}
+    .input-area{padding:10px 16px;padding-bottom:max(10px,env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;flex-shrink:0}
+    .input-area textarea{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:12px;color:var(--text);padding:10px 14px;font-size:14px;font-family:var(--font);resize:none;outline:none;max-height:100px;line-height:1.5;transition:border-color .15s}
+    .input-area textarea:focus{border-color:var(--accent)}
+    .input-area textarea::placeholder{color:var(--border)}
+    .send-btn{width:40px;height:40px;background:var(--accent);border:none;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+    .send-btn:hover{background:#2563eb}
+    .send-btn:disabled{background:var(--border);cursor:default}
+    .send-btn svg{width:16px;height:16px;fill:white}
+    ::-webkit-scrollbar{width:3px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
   </style>
 </head>
 <body>
 
-<!-- ═══════════════ ONBOARDING ═══════════════ -->
 <div id="onboarding">
-
-  <!-- Header con progreso -->
   <div class="ob-header" id="ob-header" style="display:none">
     <button class="ob-back" id="ob-back" onclick="obBack()">←</button>
     <div class="ob-progress-wrap">
-      <div class="ob-step-label" id="ob-step-label">Paso 1 de 7</div>
-      <div class="ob-progress-track">
-        <div class="ob-progress-fill" id="ob-progress" style="width:0%"></div>
-      </div>
+      <div class="ob-step-label" id="ob-step-label"></div>
+      <div class="ob-progress-track"><div class="ob-progress-fill" id="ob-progress" style="width:0%"></div></div>
     </div>
   </div>
+  <div class="ob-body">
 
-  <div class="ob-body" id="ob-body">
-
-    <!-- SLIDE 0: Welcome -->
     <div class="ob-slide active" id="slide-0">
       <div class="ob-welcome">
         <div class="ob-logo">AL</div>
-        <div>
-          <h1>Tu dinero,<br><span>al día.</span></h1>
-        </div>
+        <div><h1>Tu dinero,<br><span>al día.</span></h1></div>
         <p>ALD.IA te crea un plan financiero personalizado en 2 minutos. Gratis, sin complicaciones.</p>
         <div class="ob-features">
-          <div class="ob-feature">
-            <span class="ob-feature-icon">🎯</span>
-            <div class="ob-feature-text"><strong>100% personalizado</strong> — solo las categorías que aplican a ti</div>
-          </div>
-          <div class="ob-feature">
-            <span class="ob-feature-icon">⚡</span>
-            <div class="ob-feature-text"><strong>Registro instantáneo</strong> — dile lo que gastaste en lenguaje normal</div>
-          </div>
-          <div class="ob-feature">
-            <span class="ob-feature-icon">🔔</span>
-            <div class="ob-feature-text"><strong>Alertas inteligentes</strong> — antes de que se te acabe el presupuesto</div>
-          </div>
+          <div class="ob-feature"><span class="ob-feature-icon">🎯</span><div class="ob-feature-text"><strong>100% personalizado</strong> — solo las categorías que aplican a ti</div></div>
+          <div class="ob-feature"><span class="ob-feature-icon">⚡</span><div class="ob-feature-text"><strong>Registro instantáneo</strong> — dile lo que gastaste en lenguaje normal</div></div>
+          <div class="ob-feature"><span class="ob-feature-icon">🔔</span><div class="ob-feature-text"><strong>Alertas inteligentes</strong> — antes de que se te acabe el presupuesto</div></div>
         </div>
         <button class="ob-cta" onclick="obNext()">Empezar — 2 minutos</button>
       </div>
     </div>
 
-    <!-- SLIDE 1: Ingreso -->
     <div class="ob-slide" id="slide-1">
       <span class="ob-emoji">💰</span>
       <div class="ob-question">¿Cuánto ganas al mes?</div>
       <div class="ob-sub">Incluye sueldo, freelance o cualquier ingreso que recibas regularmente.</div>
       <div class="ob-amount-wrap">
         <span class="ob-currency">$</span>
-        <input type="number" class="ob-amount-input" id="input-ingreso"
-          placeholder="10,000" inputmode="numeric" oninput="validateIngreso()">
+        <input type="number" class="ob-amount-input" id="input-ingreso" placeholder="10,000" inputmode="numeric" oninput="validateIngreso()">
         <span style="font-size:13px;color:var(--muted);flex-shrink:0">MXN/mes</span>
       </div>
       <div class="ob-amount-hint" id="ingreso-hint">Escribe tu ingreso mensual aproximado</div>
       <button class="ob-cta" id="cta-ingreso" onclick="obNext()" disabled>Continuar →</button>
     </div>
 
-    <!-- SLIDE 2: Vivienda -->
     <div class="ob-slide" id="slide-2">
       <span class="ob-emoji">🏠</span>
       <div class="ob-question">¿Pagas renta o hipoteca?</div>
       <div class="ob-sub">Esto nos ayuda a incluir o no la categoría de vivienda en tu plan.</div>
       <div class="ob-options">
-        <div class="ob-option" onclick="selectOption('vivienda', true, this)">
-          <div class="ob-opt-icon">🏡</div>
-          <div class="ob-opt-text">
-            <div class="ob-opt-title">Sí, pago renta o hipoteca</div>
-            <div class="ob-opt-desc">Incluye servicios, internet, teléfono</div>
-          </div>
-          <div class="ob-check"></div>
-        </div>
-        <div class="ob-option" onclick="selectOption('vivienda', false, this)">
-          <div class="ob-opt-icon">👨‍👩‍👦</div>
-          <div class="ob-opt-text">
-            <div class="ob-opt-title">No, vivo con familia</div>
-            <div class="ob-opt-desc">No gastas en renta ni hipoteca</div>
-          </div>
-          <div class="ob-check"></div>
-        </div>
-        <div class="ob-option" onclick="selectOption('vivienda', 'compartido', this)">
-          <div class="ob-opt-icon">🤝</div>
-          <div class="ob-opt-text">
-            <div class="ob-opt-title">Comparto gastos</div>
-            <div class="ob-opt-desc">Solo pagas una parte</div>
-          </div>
-          <div class="ob-check"></div>
-        </div>
+        <div class="ob-option" onclick="selectOption('vivienda',true,this)"><div class="ob-opt-icon">🏡</div><div class="ob-opt-text"><div class="ob-opt-title">Sí, pago renta o hipoteca</div><div class="ob-opt-desc">Incluye servicios, internet, teléfono</div></div><div class="ob-check"></div></div>
+        <div class="ob-option" onclick="selectOption('vivienda',false,this)"><div class="ob-opt-icon">👨‍👩‍👦</div><div class="ob-opt-text"><div class="ob-opt-title">No, vivo con familia</div><div class="ob-opt-desc">No gastas en renta ni hipoteca</div></div><div class="ob-check"></div></div>
+        <div class="ob-option" onclick="selectOption('vivienda','compartido',this)"><div class="ob-opt-icon">🤝</div><div class="ob-opt-text"><div class="ob-opt-title">Comparto gastos</div><div class="ob-opt-desc">Solo pagas una parte</div></div><div class="ob-check"></div></div>
       </div>
       <button class="ob-cta" id="cta-vivienda" onclick="obNext()" disabled>Continuar →</button>
     </div>
 
-    <!-- SLIDE 3: Transporte -->
     <div class="ob-slide" id="slide-3">
       <span class="ob-emoji">🚗</span>
       <div class="ob-question">¿Cómo te mueves?</div>
       <div class="ob-sub">Selecciona la opción que mejor describe tus gastos de transporte.</div>
       <div class="ob-options">
-        <div class="ob-option" onclick="selectOption('transporte', 'carro', this)">
-          <div class="ob-opt-icon">🚗</div>
-          <div class="ob-opt-text">
-            <div class="ob-opt-title">Tengo carro</div>
-            <div class="ob-opt-desc">Gasolina, mantenimiento, seguro</div>
-          </div>
-          <div class="ob-check"></div>
-        </div>
-        <div class="ob-option" onclick="selectOption('transporte', 'publico', this)">
-          <div class="ob-opt-icon">🚌</div>
-          <div class="ob-opt-text">
-            <div class="ob-opt-title">Transporte público / Uber</div>
-            <div class="ob-opt-desc">Metro, camión, Didi, Uber</div>
-          </div>
-          <div class="ob-check"></div>
-        </div>
-        <div class="ob-option" onclick="selectOption('transporte', false, this)">
-          <div class="ob-opt-icon">🚶</div>
-          <div class="ob-opt-text">
-            <div class="ob-opt-title">No gasto en transporte</div>
-            <div class="ob-opt-desc">Todo está cerca o trabajas en casa</div>
-          </div>
-          <div class="ob-check"></div>
-        </div>
+        <div class="ob-option" onclick="selectOption('transporte','carro',this)"><div class="ob-opt-icon">🚗</div><div class="ob-opt-text"><div class="ob-opt-title">Tengo carro</div><div class="ob-opt-desc">Gasolina, mantenimiento, seguro</div></div><div class="ob-check"></div></div>
+        <div class="ob-option" onclick="selectOption('transporte','publico',this)"><div class="ob-opt-icon">🚌</div><div class="ob-opt-text"><div class="ob-opt-title">Transporte público / Uber</div><div class="ob-opt-desc">Metro, camión, Didi, Uber</div></div><div class="ob-check"></div></div>
+        <div class="ob-option" onclick="selectOption('transporte',false,this)"><div class="ob-opt-icon">🚶</div><div class="ob-opt-text"><div class="ob-opt-title">No gasto en transporte</div><div class="ob-opt-desc">Todo está cerca o trabajas en casa</div></div><div class="ob-check"></div></div>
       </div>
       <button class="ob-cta" id="cta-transporte" onclick="obNext()" disabled>Continuar →</button>
     </div>
 
-    <!-- SLIDE 4: Deudas -->
     <div class="ob-slide" id="slide-4">
       <span class="ob-emoji">💳</span>
       <div class="ob-question">¿Tienes deudas activas?</div>
       <div class="ob-sub">Tarjetas de crédito, préstamos, créditos escolares u otros pagos fijos.</div>
       <div class="ob-options">
-        <div class="ob-option" onclick="selectOption('deudas', true, this)">
-          <div class="ob-opt-icon">💳</div>
-          <div class="ob-opt-text">
-            <div class="ob-opt-title">Sí, tengo deudas</div>
-            <div class="ob-opt-desc">Tarjetas, préstamos o créditos</div>
-          </div>
-          <div class="ob-check"></div>
-        </div>
-        <div class="ob-option" onclick="selectOption('deudas', false, this)">
-          <div class="ob-opt-icon">✅</div>
-          <div class="ob-opt-text">
-            <div class="ob-opt-title">No, estoy libre de deudas</div>
-            <div class="ob-opt-desc">Sin pagos pendientes</div>
-          </div>
-          <div class="ob-check"></div>
-        </div>
+        <div class="ob-option" onclick="selectOption('deudas',true,this)"><div class="ob-opt-icon">💳</div><div class="ob-opt-text"><div class="ob-opt-title">Sí, tengo deudas</div><div class="ob-opt-desc">Tarjetas, préstamos o créditos</div></div><div class="ob-check"></div></div>
+        <div class="ob-option" onclick="selectOption('deudas',false,this)"><div class="ob-opt-icon">✅</div><div class="ob-opt-text"><div class="ob-opt-title">No, estoy libre de deudas</div><div class="ob-opt-desc">Sin pagos pendientes</div></div><div class="ob-check"></div></div>
       </div>
       <button class="ob-cta" id="cta-deudas" onclick="obNext()" disabled>Continuar →</button>
     </div>
 
-    <!-- SLIDE 5: Educación -->
     <div class="ob-slide" id="slide-5">
       <span class="ob-emoji">📚</span>
       <div class="ob-question">¿Actualmente estudias?</div>
       <div class="ob-sub">O inviertes en cursos, certificaciones, libros o formación profesional.</div>
       <div class="ob-options">
-        <div class="ob-option" onclick="selectOption('educacion', true, this)">
-          <div class="ob-opt-icon">🎓</div>
-          <div class="ob-opt-text">
-            <div class="ob-opt-title">Sí, tengo gastos de educación</div>
-            <div class="ob-opt-desc">Escuela, cursos, certificaciones</div>
-          </div>
-          <div class="ob-check"></div>
-        </div>
-        <div class="ob-option" onclick="selectOption('educacion', false, this)">
-          <div class="ob-opt-icon">💼</div>
-          <div class="ob-opt-text">
-            <div class="ob-opt-title">No por ahora</div>
-            <div class="ob-opt-desc">No hay gastos educativos activos</div>
-          </div>
-          <div class="ob-check"></div>
-        </div>
+        <div class="ob-option" onclick="selectOption('educacion',true,this)"><div class="ob-opt-icon">🎓</div><div class="ob-opt-text"><div class="ob-opt-title">Sí, tengo gastos de educación</div><div class="ob-opt-desc">Escuela, cursos, certificaciones</div></div><div class="ob-check"></div></div>
+        <div class="ob-option" onclick="selectOption('educacion',false,this)"><div class="ob-opt-icon">💼</div><div class="ob-opt-text"><div class="ob-opt-title">No por ahora</div><div class="ob-opt-desc">No hay gastos educativos activos</div></div><div class="ob-check"></div></div>
       </div>
       <button class="ob-cta" id="cta-educacion" onclick="obNext()" disabled>Continuar →</button>
     </div>
 
-    <!-- SLIDE 6: Meta -->
     <div class="ob-slide" id="slide-6">
       <span class="ob-emoji">🎯</span>
       <div class="ob-question">¿Cuál es tu meta principal?</div>
       <div class="ob-sub">Esto personaliza los consejos y alertas de ALD.IA para ti.</div>
       <div class="ob-options">
-        <div class="ob-option" onclick="selectOption('meta_tipo', 'ahorrar', this)">
-          <div class="ob-opt-icon">🏦</div>
-          <div class="ob-opt-text">
-            <div class="ob-opt-title">Ahorrar dinero</div>
-            <div class="ob-opt-desc">Construir un fondo o emergencias</div>
-          </div>
-          <div class="ob-check"></div>
-        </div>
-        <div class="ob-option" onclick="selectOption('meta_tipo', 'compra', this)">
-          <div class="ob-opt-icon">🛍️</div>
-          <div class="ob-opt-text">
-            <div class="ob-opt-title">Comprar algo grande</div>
-            <div class="ob-opt-desc">Auto, viaje, gadget, casa</div>
-          </div>
-          <div class="ob-check"></div>
-        </div>
-        <div class="ob-option" onclick="selectOption('meta_tipo', 'deudas', this)">
-          <div class="ob-opt-icon">🔓</div>
-          <div class="ob-opt-text">
-            <div class="ob-opt-title">Pagar mis deudas</div>
-            <div class="ob-opt-desc">Librarme de créditos o tarjetas</div>
-          </div>
-          <div class="ob-check"></div>
-        </div>
-        <div class="ob-option" onclick="selectOption('meta_tipo', 'control', this)">
-          <div class="ob-opt-icon">📊</div>
-          <div class="ob-opt-text">
-            <div class="ob-opt-title">Controlar mis gastos</div>
-            <div class="ob-opt-desc">Saber a dónde va mi dinero</div>
-          </div>
-          <div class="ob-check"></div>
-        </div>
+        <div class="ob-option" onclick="selectOption('meta_tipo','ahorrar',this)"><div class="ob-opt-icon">🏦</div><div class="ob-opt-text"><div class="ob-opt-title">Ahorrar dinero</div><div class="ob-opt-desc">Construir un fondo o emergencias</div></div><div class="ob-check"></div></div>
+        <div class="ob-option" onclick="selectOption('meta_tipo','compra',this)"><div class="ob-opt-icon">🛍️</div><div class="ob-opt-text"><div class="ob-opt-title">Comprar algo grande</div><div class="ob-opt-desc">Auto, viaje, gadget, casa</div></div><div class="ob-check"></div></div>
+        <div class="ob-option" onclick="selectOption('meta_tipo','deudas',this)"><div class="ob-opt-icon">🔓</div><div class="ob-opt-text"><div class="ob-opt-title">Pagar mis deudas</div><div class="ob-opt-desc">Librarme de créditos o tarjetas</div></div><div class="ob-check"></div></div>
+        <div class="ob-option" onclick="selectOption('meta_tipo','control',this)"><div class="ob-opt-icon">📊</div><div class="ob-opt-text"><div class="ob-opt-title">Controlar mis gastos</div><div class="ob-opt-desc">Saber a dónde va mi dinero</div></div><div class="ob-check"></div></div>
       </div>
       <button class="ob-cta" id="cta-meta_tipo" onclick="obNext()" disabled>Continuar →</button>
     </div>
 
-    <!-- SLIDE 7: Meta amount -->
     <div class="ob-slide" id="slide-7">
       <span class="ob-emoji">🏆</span>
       <div class="ob-question">¿Cuánto quieres ahorrar?</div>
       <div class="ob-sub">Escribe el monto de tu meta. Si no tienes una cifra exacta, pon algo aproximado.</div>
       <div class="ob-amount-wrap">
         <span class="ob-currency">$</span>
-        <input type="number" class="ob-amount-input" id="input-meta"
-          placeholder="50,000" inputmode="numeric" oninput="validateMeta()">
+        <input type="number" class="ob-amount-input" id="input-meta" placeholder="50,000" inputmode="numeric" oninput="validateMeta()">
         <span style="font-size:13px;color:var(--muted);flex-shrink:0">MXN</span>
       </div>
       <div class="ob-amount-hint" id="meta-hint">Tu meta de ahorro o compra</div>
-      <button class="ob-cta" id="cta-meta" onclick="obNext()" disabled>Crear mi plan →</button>
+      <button class="ob-cta" id="cta-meta" onclick="obNext()" disabled>Continuar →</button>
     </div>
 
-
-    <!-- SLIDE 8: Plazo -->
     <div class="ob-slide" id="slide-8">
       <span class="ob-emoji">📅</span>
       <div class="ob-question">¿Cuándo quieres lograrlo?</div>
       <div class="ob-sub">Esto nos ayuda a calcular cuánto necesitas ahorrar cada mes.</div>
       <div class="ob-options">
-        <div class="ob-option" onclick="selectOption('plazo_meses', 6, this)">
-          <div class="ob-opt-icon">⚡</div>
-          <div class="ob-opt-text">
-            <div class="ob-opt-title">6 meses</div>
-            <div class="ob-opt-desc">Rápido y ambicioso</div>
-          </div>
-          <div class="ob-check"></div>
-        </div>
-        <div class="ob-option" onclick="selectOption('plazo_meses', 12, this)">
-          <div class="ob-opt-icon">📅</div>
-          <div class="ob-opt-text">
-            <div class="ob-opt-title">1 año</div>
-            <div class="ob-opt-desc">El plazo más común</div>
-          </div>
-          <div class="ob-check"></div>
-        </div>
-        <div class="ob-option" onclick="selectOption('plazo_meses', 24, this)">
-          <div class="ob-opt-icon">🗓️</div>
-          <div class="ob-opt-text">
-            <div class="ob-opt-title">2 años</div>
-            <div class="ob-opt-desc">Con más calma</div>
-          </div>
-          <div class="ob-check"></div>
-        </div>
-        <div class="ob-option" onclick="selectOption('plazo_meses', 36, this)">
-          <div class="ob-opt-icon">🏔️</div>
-          <div class="ob-opt-text">
-            <div class="ob-opt-title">3 años o más</div>
-            <div class="ob-opt-desc">Meta a largo plazo</div>
-          </div>
-          <div class="ob-check"></div>
-        </div>
+        <div class="ob-option" onclick="selectOption('plazo_meses',6,this)"><div class="ob-opt-icon">⚡</div><div class="ob-opt-text"><div class="ob-opt-title">6 meses</div><div class="ob-opt-desc">Rápido y ambicioso</div></div><div class="ob-check"></div></div>
+        <div class="ob-option" onclick="selectOption('plazo_meses',12,this)"><div class="ob-opt-icon">📅</div><div class="ob-opt-text"><div class="ob-opt-title">1 año</div><div class="ob-opt-desc">El plazo más común</div></div><div class="ob-check"></div></div>
+        <div class="ob-option" onclick="selectOption('plazo_meses',24,this)"><div class="ob-opt-icon">🗓️</div><div class="ob-opt-text"><div class="ob-opt-title">2 años</div><div class="ob-opt-desc">Con más calma</div></div><div class="ob-check"></div></div>
+        <div class="ob-option" onclick="selectOption('plazo_meses',36,this)"><div class="ob-opt-icon">🏔️</div><div class="ob-opt-text"><div class="ob-opt-title">3 años o más</div><div class="ob-opt-desc">Meta a largo plazo</div></div><div class="ob-check"></div></div>
       </div>
       <button class="ob-cta" id="cta-plazo_meses" onclick="obNext()" disabled>Continuar →</button>
     </div>
 
-    <!-- SLIDE 9: Success -->
     <div class="ob-slide" id="slide-9">
+      <span class="ob-emoji">⚖️</span>
+      <div class="ob-question">¿Qué tan estricto quieres tu plan?</div>
+      <div class="ob-sub">Esto define cuánto sacrificas en gustos para alcanzar tu meta más rápido.</div>
+      <div class="ob-options">
+        <div class="ob-option" onclick="selectOption('estrictez','relajado',this)"><div class="ob-opt-icon">🌱</div><div class="ob-opt-text"><div class="ob-opt-title">Relajado</div><div class="ob-opt-desc">Ahorro lo que pueda sin sacrificar mi estilo de vida</div></div><div class="ob-check"></div></div>
+        <div class="ob-option" onclick="selectOption('estrictez','equilibrado',this)"><div class="ob-opt-icon">⚖️</div><div class="ob-opt-text"><div class="ob-opt-title">Equilibrado</div><div class="ob-opt-desc">Balance entre disfrutar y ahorrar consistentemente</div></div><div class="ob-check"></div></div>
+        <div class="ob-option" onclick="selectOption('estrictez','agresivo',this)"><div class="ob-opt-icon">🔥</div><div class="ob-opt-text"><div class="ob-opt-title">Agresivo</div><div class="ob-opt-desc">Maximizo el ahorro aunque sacrifique gustos temporalmente</div></div><div class="ob-check"></div></div>
+      </div>
+      <button class="ob-cta" id="cta-estrictez" onclick="obNext()" disabled>Continuar →</button>
+    </div>
+
+    <div class="ob-slide" id="slide-10">
       <div class="ob-success">
         <div class="ob-success-icon">🎉</div>
         <h2>¡Tu plan está listo!</h2>
         <p>Creamos un presupuesto personalizado basado en tu situación. Estas son tus categorías activas:</p>
         <div class="ob-tags" id="active-tags"></div>
-        <div id="plan-output" style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:16px 18px;font-size:13px;line-height:1.7;color:var(--muted2);text-align:left;max-width:360px;width:100%;margin-top:4px;"></div>
+        <div id="plan-output" style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:16px 18px;font-size:13px;line-height:1.7;color:var(--muted2);text-align:left;max-width:360px;width:100%;min-height:50px;"></div>
         <button class="ob-cta" style="max-width:320px" onclick="startChat()">Empezar con ALD.IA →</button>
       </div>
     </div>
@@ -772,9 +277,7 @@
   </div>
 </div>
 
-<!-- ═══════════════ CHAT ═══════════════ -->
 <div id="chat">
-
   <div class="chat-header">
     <div class="chat-avatar">AL</div>
     <div class="chat-header-info">
@@ -783,60 +286,18 @@
     </div>
     <button class="chat-reset" onclick="hardReset()">Nueva sesión</button>
   </div>
-
-  <div class="budget-grid" id="budgetGrid">
-    <div class="budget-item" id="bi-vivienda">
-      <span class="budget-label">Vivienda</span>
-      <div class="budget-track"><div class="budget-fill green" id="fillVivienda"></div></div>
-      <span class="budget-amount" id="amtVivienda">—</span>
-    </div>
-    <div class="budget-item" id="bi-comida">
-      <span class="budget-label">Comida</span>
-      <div class="budget-track"><div class="budget-fill green" id="fillComida"></div></div>
-      <span class="budget-amount" id="amtComida">—</span>
-    </div>
-    <div class="budget-item" id="bi-transporte">
-      <span class="budget-label">Transporte</span>
-      <div class="budget-track"><div class="budget-fill green" id="fillTransporte"></div></div>
-      <span class="budget-amount" id="amtTransporte">—</span>
-    </div>
-    <div class="budget-item" id="bi-salud">
-      <span class="budget-label">Salud</span>
-      <div class="budget-track"><div class="budget-fill green" id="fillSalud"></div></div>
-      <span class="budget-amount" id="amtSalud">—</span>
-    </div>
-    <div class="budget-item" id="bi-educacion">
-      <span class="budget-label">Educación</span>
-      <div class="budget-track"><div class="budget-fill green" id="fillEducacion"></div></div>
-      <span class="budget-amount" id="amtEducacion">—</span>
-    </div>
-    <div class="budget-item" id="bi-ocio">
-      <span class="budget-label">Ocio</span>
-      <div class="budget-track"><div class="budget-fill green" id="fillOcio"></div></div>
-      <span class="budget-amount" id="amtOcio">—</span>
-    </div>
-    <div class="budget-item" id="bi-ropa">
-      <span class="budget-label">Ropa</span>
-      <div class="budget-track"><div class="budget-fill green" id="fillRopa"></div></div>
-      <span class="budget-amount" id="amtRopa">—</span>
-    </div>
-    <div class="budget-item" id="bi-deudas">
-      <span class="budget-label">Deudas</span>
-      <div class="budget-track"><div class="budget-fill green" id="fillDeudas"></div></div>
-      <span class="budget-amount" id="amtDeudas">—</span>
-    </div>
-    <div class="budget-item">
-      <span class="budget-label">Ahorro</span>
-      <div class="budget-track"><div class="budget-fill green" id="fillAhorro"></div></div>
-      <span class="budget-amount" id="amtAhorro">—</span>
-    </div>
-    <div class="budget-item">
-      <span class="budget-label">Meta</span>
-      <div class="budget-track"><div class="budget-fill green" id="fillMeta"></div></div>
-      <span class="budget-amount" id="amtMeta">—</span>
-    </div>
+  <div class="budget-grid">
+    <div class="budget-item" id="bi-vivienda"><span class="budget-label">Vivienda</span><div class="budget-track"><div class="budget-fill green" id="fillVivienda"></div></div><span class="budget-amount" id="amtVivienda">—</span></div>
+    <div class="budget-item" id="bi-comida"><span class="budget-label">Comida</span><div class="budget-track"><div class="budget-fill green" id="fillComida"></div></div><span class="budget-amount" id="amtComida">—</span></div>
+    <div class="budget-item" id="bi-transporte"><span class="budget-label">Transporte</span><div class="budget-track"><div class="budget-fill green" id="fillTransporte"></div></div><span class="budget-amount" id="amtTransporte">—</span></div>
+    <div class="budget-item" id="bi-salud"><span class="budget-label">Salud</span><div class="budget-track"><div class="budget-fill green" id="fillSalud"></div></div><span class="budget-amount" id="amtSalud">—</span></div>
+    <div class="budget-item" id="bi-educacion"><span class="budget-label">Educación</span><div class="budget-track"><div class="budget-fill green" id="fillEducacion"></div></div><span class="budget-amount" id="amtEducacion">—</span></div>
+    <div class="budget-item" id="bi-ocio"><span class="budget-label">Ocio</span><div class="budget-track"><div class="budget-fill green" id="fillOcio"></div></div><span class="budget-amount" id="amtOcio">—</span></div>
+    <div class="budget-item" id="bi-ropa"><span class="budget-label">Ropa</span><div class="budget-track"><div class="budget-fill green" id="fillRopa"></div></div><span class="budget-amount" id="amtRopa">—</span></div>
+    <div class="budget-item" id="bi-deudas"><span class="budget-label">Deudas</span><div class="budget-track"><div class="budget-fill green" id="fillDeudas"></div></div><span class="budget-amount" id="amtDeudas">—</span></div>
+    <div class="budget-item"><span class="budget-label">Ahorro</span><div class="budget-track"><div class="budget-fill green" id="fillAhorro"></div></div><span class="budget-amount" id="amtAhorro">—</span></div>
+    <div class="budget-item"><span class="budget-label">Meta</span><div class="budget-track"><div class="budget-fill green" id="fillMeta"></div></div><span class="budget-amount" id="amtMeta">—</span></div>
   </div>
-
   <div class="disponible-bar">
     <div class="disponible-inner">
       <span class="disponible-label">💰 Disponible</span>
@@ -844,19 +305,15 @@
       <span class="disponible-amount" id="amtDisp">—</span>
     </div>
   </div>
-
   <div class="messages" id="messages"></div>
-
   <div class="quick-actions">
     <button class="quick-btn" onclick="sendQuick('¿Cómo voy este mes?')">¿Cómo voy?</button>
     <button class="quick-btn" onclick="sendQuick('¿Cuánto puedo gastar hoy?')">¿Cuánto puedo gastar?</button>
     <button class="quick-btn" onclick="sendQuick('¿Cuándo llego a mi meta?')">¿Cuándo llego?</button>
     <button class="quick-btn" onclick="sendQuick('Muéstrame mi resumen del mes')">Resumen</button>
   </div>
-
   <div class="input-area">
-    <textarea id="input" placeholder="Ej: gasté $200 en comida..." rows="1"
-      onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <textarea id="input" placeholder="Ej: gasté $200 en comida..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
     <button class="send-btn" id="sendBtn" onclick="sendMessage()">
       <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
     </button>
@@ -864,40 +321,33 @@
 </div>
 
 <script>
-  // ─── ONBOARDING STATE ──────────────────────────────────────────────
+  const TOTAL_SLIDES = 10;
+  const LIMITES_BASE = {vivienda:.25,comida:.12,transporte:.12,salud:.08,educacion:.02,ocio:.07,ropa:.08,deudas:.08};
+  const PCT_AHORRO = {relajado:.10,equilibrado:.20,agresivo:.35};
   let currentSlide = 0;
-  const totalSlides = 10;
+  let ingresoRef = 0;
   const answers = {};
-  const LIMITES_BASE = { vivienda:0.25, comida:0.12, transporte:0.12, salud:0.08, educacion:0.02, ocio:0.07, ropa:0.08, deudas:0.08 };
 
   function obNext() {
-    if (currentSlide === 0) {
-      document.getElementById('ob-header').style.display = 'flex';
-    }
+    if (currentSlide === 0) document.getElementById('ob-header').style.display = 'flex';
     goToSlide(currentSlide + 1);
   }
 
   function obBack() {
-    if (currentSlide <= 1) {
-      document.getElementById('ob-header').style.display = 'none';
-      goToSlide(0);
-    } else {
-      goToSlide(currentSlide - 1);
-    }
+    if (currentSlide <= 1) { document.getElementById('ob-header').style.display = 'none'; goToSlide(0); }
+    else goToSlide(currentSlide - 1);
   }
 
   function goToSlide(n) {
-    document.getElementById(`slide-${currentSlide}`).classList.remove('active');
+    document.getElementById('slide-' + currentSlide).classList.remove('active');
     currentSlide = n;
-    document.getElementById(`slide-${currentSlide}`).classList.add('active');
+    document.getElementById('slide-' + currentSlide).classList.add('active');
     const step = Math.max(0, currentSlide - 1);
-    const total = totalSlides - 2;
+    const total = TOTAL_SLIDES - 1;
     document.getElementById('ob-progress').style.width = (step / total * 100) + '%';
-    document.getElementById('ob-step-label').textContent = currentSlide > 0 && currentSlide < totalSlides
-      ? `Paso ${step} de ${total}` : '';
+    document.getElementById('ob-step-label').textContent = (currentSlide > 0 && currentSlide < TOTAL_SLIDES) ? 'Paso ' + step + ' de ' + total : '';
     document.getElementById('ob-back').disabled = currentSlide === 0;
-
-    if (currentSlide === totalSlides) { buildSuccessScreen(); generatePlan(); }
+    if (currentSlide === TOTAL_SLIDES) { buildSuccessScreen(); generatePlan(); }
   }
 
   function selectOption(key, value, el) {
@@ -905,17 +355,17 @@
     el.classList.add('selected');
     el.querySelector('.ob-check').innerHTML = '✓';
     answers[key] = value;
-    const cta = document.getElementById(`cta-${key}`);
+    const cta = document.getElementById('cta-' + key);
     if (cta) cta.disabled = false;
   }
 
   function validateIngreso() {
     const val = parseFloat(document.getElementById('input-ingreso').value);
     const hint = document.getElementById('ingreso-hint');
-    const cta  = document.getElementById('cta-ingreso');
+    const cta = document.getElementById('cta-ingreso');
     if (val > 0) {
       answers.ingreso = val;
-      hint.textContent = `$${val.toLocaleString('es-MX')} pesos al mes`;
+      hint.textContent = '$' + val.toLocaleString('es-MX') + ' pesos al mes';
       hint.style.color = 'var(--accent2)';
       cta.disabled = false;
     } else {
@@ -928,15 +378,12 @@
   function validateMeta() {
     const val = parseFloat(document.getElementById('input-meta').value);
     const hint = document.getElementById('meta-hint');
-    const cta  = document.getElementById('cta-meta');
-    const ingreso = answers.ingreso || 0;
+    const cta = document.getElementById('cta-meta');
     if (val > 0) {
       answers.meta = val;
-      const plazo = answers.plazo_meses || 12;
-      const ahorroNecesario = Math.round((answers.meta||0) / plazo);
-      const meses = ahorroMes > 0 ? Math.round((answers.meta||0) / ahorroMes) : 999;
-      const esViable = ahorroNecesario <= ahorroMes;
-      hint.textContent = `≈ ${meses} meses ahorrando el 15% de tu ingreso`;
+      const ingreso = answers.ingreso || 0;
+      const meses = ingreso > 0 ? Math.ceil(val / (ingreso * 0.15)) : '?';
+      hint.textContent = 'Ahorrando el 15%: ~' + meses + ' meses';
       hint.style.color = 'var(--accent2)';
       cta.disabled = false;
     } else {
@@ -946,22 +393,8 @@
     }
   }
 
-  function buildSuccessScreen() {
-    const tags = document.getElementById('active-tags');
-    tags.innerHTML = '';
-    const cats = getActiveCats();
-    cats.forEach(cat => {
-      const tag = document.createElement('span');
-      tag.className = 'ob-tag';
-      tag.textContent = catLabel(cat);
-      tags.appendChild(tag);
-    });
-    tags.innerHTML += '<span class="ob-tag">✨ Ahorro</span><span class="ob-tag">🎯 Meta</span>';
-  }
-
   function getActiveCats() {
-    const all = ['vivienda','comida','transporte','salud','educacion','ocio','ropa','deudas'];
-    return all.filter(cat => {
+    return ['vivienda','comida','transporte','salud','educacion','ocio','ropa','deudas'].filter(cat => {
       if (cat === 'vivienda')   return answers.vivienda !== false;
       if (cat === 'transporte') return answers.transporte !== false;
       if (cat === 'deudas')     return answers.deudas !== false;
@@ -971,82 +404,93 @@
   }
 
   function catLabel(cat) {
-    const map = { vivienda:'🏠 Vivienda', comida:'🍔 Comida', transporte:'🚗 Transporte',
-      salud:'❤️ Salud', educacion:'📚 Educación', ocio:'🎮 Ocio', ropa:'👕 Ropa', deudas:'💳 Deudas' };
-    return map[cat] || cat;
+    return {vivienda:'🏠 Vivienda',comida:'🍔 Comida',transporte:'🚗 Transporte',salud:'❤️ Salud',educacion:'📚 Educación',ocio:'🎮 Ocio',ropa:'👕 Ropa',deudas:'💳 Deudas'}[cat] || cat;
   }
 
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
   function hideCats() {
-    const activeCats = getActiveCats();
-    const all = ['vivienda','comida','transporte','salud','educacion','ocio','ropa','deudas'];
-    all.forEach(cat => {
-      const el = document.getElementById(`bi-${cat}`);
-      if (el) el.style.display = activeCats.includes(cat) ? '' : 'none';
+    const active = getActiveCats();
+    ['vivienda','comida','transporte','salud','educacion','ocio','ropa','deudas'].forEach(cat => {
+      const el = document.getElementById('bi-' + cat);
+      if (el) el.style.display = active.includes(cat) ? '' : 'none';
     });
   }
 
-  // ─── CHAT ──────────────────────────────────────────────────────────
-  let ingresoRef = 0;
+  function buildSuccessScreen() {
+    const tags = document.getElementById('active-tags');
+    tags.innerHTML = '';
+    getActiveCats().forEach(cat => {
+      const t = document.createElement('span');
+      t.className = 'ob-tag';
+      t.textContent = catLabel(cat);
+      tags.appendChild(t);
+    });
+    tags.innerHTML += '<span class="ob-tag">✨ Ahorro</span><span class="ob-tag">🎯 Meta</span>';
+  }
 
-  async function startChat() {
+  async function generatePlan() {
+    const planEl = document.getElementById('plan-output');
+    planEl.innerHTML = '<span style="color:var(--muted)">Generando tu plan...</span>';
+    try {
+      const res = await fetch('/api/generar-plan', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(answers)
+      });
+      const data = await res.json();
+      planEl.innerHTML = data.plan.replace(/\n/g,'<br>');
+    } catch {
+      planEl.innerHTML = '<span style="color:var(--muted)">Continúa al chat para ver tu plan.</span>';
+    }
+  }
+
+  function startChat() {
     document.getElementById('onboarding').style.display = 'none';
-    const chatEl = document.getElementById('chat');
-    chatEl.classList.add('active');
+    document.getElementById('chat').classList.add('active');
     hideCats();
 
     ingresoRef = answers.ingreso || 0;
 
-    // Inicializar barras con límites desde el inicio
     if (ingresoRef > 0) {
-      const limites = { vivienda:0.25, comida:0.12, transporte:0.12, salud:0.08, educacion:0.02, ocio:0.07, ropa:0.08, deudas:0.08 };
       getActiveCats().forEach(cat => {
-        const fill = document.getElementById(`fill${cap(cat)}`);
-        const amt  = document.getElementById(`amt${cap(cat)}`);
-        const limite = Math.round(ingresoRef * (limites[cat] || 0.05));
+        const fill = document.getElementById('fill' + cap(cat));
+        const amt  = document.getElementById('amt' + cap(cat));
+        const limite = Math.round(ingresoRef * (LIMITES_BASE[cat] || 0.05));
         if (fill) { fill.style.width = '0%'; fill.className = 'budget-fill green'; }
-        if (amt)  amt.textContent = `$0 / $${limite.toLocaleString('es-MX')} (0%)`;
+        if (amt)  amt.textContent = '$0 / $' + limite.toLocaleString('es-MX') + ' (0%)';
       });
-      // Disponible inicial = ingreso completo
       const fillD = document.getElementById('fillDisp');
       const amtD  = document.getElementById('amtDisp');
       if (fillD) { fillD.style.width = '100%'; fillD.style.background = 'var(--green)'; }
       if (amtD)  { amtD.textContent = '$' + ingresoRef.toLocaleString('es-MX'); amtD.style.color = 'var(--green)'; }
     }
 
-    const pct = {"relajado":0.10,"equilibrado":0.20,"agresivo":0.35}[answers.estrictez] || 0.20;
-    const ahorroMes = Math.round((answers.ingreso||0) * pct);
+    const pct = PCT_AHORRO[answers.estrictez] || 0.20;
+    const ahorroMes = Math.round((answers.ingreso || 0) * pct);
     const plazo = answers.plazo_meses || 12;
-    const ahorroNecesario = Math.round((answers.meta||0) / plazo);
-    const meses = ahorroMes > 0 ? Math.round((answers.meta||0) / ahorroMes) : 999;
+    const ahorroNecesario = Math.round((answers.meta || 0) / plazo);
     const esViable = ahorroNecesario <= ahorroMes;
     const cats = getActiveCats().map(catLabel).join(', ');
 
     let viabilidad = '';
     if (answers.meta > 0 && answers.ingreso > 0) {
       if (esViable) {
-        viabilidad = `✅ ¡Tu meta de $${(answers.meta).toLocaleString('es-MX')} en ${plazo} meses es alcanzable! Necesitas ahorrar $${ahorroNecesario.toLocaleString('es-MX')}/mes.`;
+        viabilidad = '✅ ¡Tu meta de $' + answers.meta.toLocaleString('es-MX') + ' en ' + plazo + ' meses es alcanzable! Necesitas ahorrar $' + ahorroNecesario.toLocaleString('es-MX') + '/mes.';
       } else {
-        viabilidad = `⚠️ Para $${(answers.meta).toLocaleString('es-MX')} en ${plazo} meses necesitarías $${ahorroNecesario.toLocaleString('es-MX')}/mes, pero con tu plan llegas a $${ahorroMes.toLocaleString('es-MX')}/mes. Meta realista en ${plazo} meses: $${(ahorroMes*plazo).toLocaleString('es-MX')}.`;
+        viabilidad = '⚠️ Para $' + answers.meta.toLocaleString('es-MX') + ' en ' + plazo + ' meses necesitarías $' + ahorroNecesario.toLocaleString('es-MX') + '/mes, pero con tu plan llegas a $' + ahorroMes.toLocaleString('es-MX') + '/mes. Meta realista: $' + (ahorroMes * plazo).toLocaleString('es-MX') + '.';
       }
     }
 
-    addMessage('aldia', `¡Todo listo! 🎉\n\n${viabilidad}\n\n💰 Ingreso: $${(answers.ingreso||0).toLocaleString('es-MX')}/mes\n📂 Categorías activas: ${cats}\n\nYa puedes registrar tus gastos. Por ejemplo: "gasté 200 en el super".`);
+    addMessage('aldia', '¡Todo listo! 🎉\n\n' + viabilidad + '\n\n💰 Ingreso: $' + (answers.ingreso || 0).toLocaleString('es-MX') + '/mes\n📂 Categorías: ' + cats + '\n\nYa puedes registrar tus gastos. Ej: "gasté 200 en el super".');
 
     fetch('/api/setup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(answers)
-    });
-  }
-    fetch('/api/setup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify(answers)
     });
   }
 
   function hardReset() {
-    fetch('/api/reset', { method: 'POST' });
+    fetch('/api/reset', {method:'POST'});
     location.reload();
   }
 
@@ -1065,86 +509,65 @@
   }
 
   function addMessage(role, text, isAlert) {
-    const messagesEl = document.getElementById('messages');
+    const el = document.getElementById('messages');
     const div = document.createElement('div');
-    div.className = `message ${role}`;
-    const avatar = role === 'aldia' ? 'AL' : '👤';
+    div.className = 'message ' + role;
     const bubbleClass = isAlert ? 'bubble alert-bubble' : 'bubble';
-    div.innerHTML = `<div class="msg-avatar">${avatar}</div><div class="${bubbleClass}">${text.replace(/\n/g,'<br>')}</div>`;
-    messagesEl.appendChild(div);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
+    div.innerHTML = '<div class="msg-avatar">' + (role === 'aldia' ? 'AL' : '👤') + '</div><div class="' + bubbleClass + '">' + text.replace(/\n/g,'<br>') + '</div>';
+    el.appendChild(div);
+    el.scrollTop = el.scrollHeight;
   }
 
   function showTyping() {
-    const messagesEl = document.getElementById('messages');
+    const el = document.getElementById('messages');
     const div = document.createElement('div');
     div.className = 'message aldia'; div.id = 'typing';
-    div.innerHTML = `<div class="msg-avatar">AL</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
-    messagesEl.appendChild(div);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
+    div.innerHTML = '<div class="msg-avatar">AL</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>';
+    el.appendChild(div);
+    el.scrollTop = el.scrollHeight;
   }
 
   function hideTyping() { const t = document.getElementById('typing'); if (t) t.remove(); }
 
-  function colorClass(pct) {
-    if (pct >= 90) return 'red';
-    if (pct >= 70) return 'yellow';
-    return 'green';
-  }
+  function colorClass(p) { return p >= 90 ? 'red' : p >= 70 ? 'yellow' : 'green'; }
 
   function updateBudget(b) {
     if (!b) return;
-    if (b.ingreso && b.ingreso > 0) ingresoRef = b.ingreso;
-
-    const activeCats = getActiveCats();
-    const cats = ['vivienda','comida','transporte','salud','educacion','ocio','ropa','deudas'];
-
-    cats.forEach(cat => {
-      const fill = document.getElementById(`fill${cap(cat)}`);
-      const amt  = document.getElementById(`amt${cap(cat)}`);
-      if (!fill || !amt) return;
-      if (!activeCats.includes(cat)) return;
-      const pct     = b[cat + '_pct'] || 0;
-      const limPct  = LIMITES_BASE[cat] || 0.05;
-      const limite  = ingresoRef * limPct;
+    if (b.ingreso > 0) ingresoRef = b.ingreso;
+    const active = getActiveCats();
+    ['vivienda','comida','transporte','salud','educacion','ocio','ropa','deudas'].forEach(cat => {
+      const fill = document.getElementById('fill' + cap(cat));
+      const amt  = document.getElementById('amt' + cap(cat));
+      if (!fill || !amt || !active.includes(cat)) return;
+      const pct = b[cat + '_pct'] || 0;
+      const limite = ingresoRef * (LIMITES_BASE[cat] || 0.05);
       const gastado = Math.round(ingresoRef * pct / 100);
-      const usoPct  = limite > 0 ? Math.min((gastado / limite) * 100, 100) : 0;
-      fill.style.width = usoPct + '%';
-      fill.className = `budget-fill ${colorClass(usoPct)}`;
-      amt.textContent = gastado > 0
-        ? `$${gastado.toLocaleString('es-MX')} / $${Math.round(limite).toLocaleString('es-MX')} (${Math.round(usoPct)}%)`
-        : '—';
+      const uso = limite > 0 ? Math.min((gastado / limite) * 100, 100) : 0;
+      fill.style.width = uso + '%';
+      fill.className = 'budget-fill ' + colorClass(uso);
+      amt.textContent = gastado > 0 ? '$' + gastado.toLocaleString('es-MX') + ' / $' + Math.round(limite).toLocaleString('es-MX') + ' (' + Math.round(uso) + '%)' : '—';
     });
 
-    // Ahorro
-    const ahorroReal   = Math.round(ingresoRef * (b.ahorro_pct || 0) / 100);
-    const ahorroLimite = Math.round(ingresoRef * 0.15);
-    const ahorroUso    = ahorroLimite > 0 ? Math.min((ahorroReal / ahorroLimite) * 100, 100) : 0;
-    const fillA = document.getElementById('fillAhorro');
-    const amtA  = document.getElementById('amtAhorro');
-    if (fillA) { fillA.style.width = ahorroUso + '%'; fillA.className = `budget-fill ${ahorroUso >= 100 ? 'green' : ahorroUso >= 50 ? 'yellow' : 'red'}`; }
-    if (amtA && ahorroReal > 0) amtA.textContent = `$${ahorroReal.toLocaleString('es-MX')} / $${ahorroLimite.toLocaleString('es-MX')} (${Math.round(ahorroUso)}%)`;
+    const aR = Math.round(ingresoRef * (b.ahorro_pct || 0) / 100);
+    const aL = Math.round(ingresoRef * 0.15);
+    const aU = aL > 0 ? Math.min((aR / aL) * 100, 100) : 0;
+    const fA = document.getElementById('fillAhorro'), mA = document.getElementById('amtAhorro');
+    if (fA) { fA.style.width = aU + '%'; fA.className = 'budget-fill ' + (aU >= 100 ? 'green' : aU >= 50 ? 'yellow' : 'red'); }
+    if (mA && aR > 0) mA.textContent = '$' + aR.toLocaleString('es-MX') + ' / $' + aL.toLocaleString('es-MX') + ' (' + Math.round(aU) + '%)';
 
-    // Meta
-    const metaPct = b.meta_pct || 0;
-    const fillM = document.getElementById('fillMeta');
-    const amtM  = document.getElementById('amtMeta');
-    if (fillM) { fillM.style.width = Math.min(metaPct, 100) + '%'; fillM.className = `budget-fill ${metaPct >= 100 ? 'green' : metaPct >= 50 ? 'yellow' : 'red'}`; }
-    if (amtM && metaPct > 0) amtM.textContent = `${Math.round(metaPct)}% de tu meta`;
+    const mP = b.meta_pct || 0;
+    const fM = document.getElementById('fillMeta'), mM = document.getElementById('amtMeta');
+    if (fM) { fM.style.width = Math.min(mP,100) + '%'; fM.className = 'budget-fill ' + (mP >= 100 ? 'green' : mP >= 50 ? 'yellow' : 'red'); }
+    if (mM && mP > 0) mM.textContent = Math.round(mP) + '% de tu meta';
 
-    // Disponible
     if (b.disponible !== undefined) {
-      const disp = b.disponible;
-      const ref  = ingresoRef || 10000;
-      const pctD = Math.min(100, Math.max(0, (disp / ref) * 100));
-      const fillD = document.getElementById('fillDisp');
-      const amtD  = document.getElementById('amtDisp');
-      if (fillD) { fillD.style.width = pctD + '%'; fillD.style.background = disp > ref*0.5 ? 'var(--green)' : disp > ref*0.2 ? 'var(--yellow)' : 'var(--red)'; }
-      if (amtD)  { amtD.textContent = '$' + disp.toLocaleString('es-MX'); amtD.style.color = disp > ref*0.2 ? 'var(--green)' : 'var(--red)'; }
+      const d = b.disponible, ref = ingresoRef || 10000;
+      const pD = Math.min(100, Math.max(0, (d / ref) * 100));
+      const fD = document.getElementById('fillDisp'), aD = document.getElementById('amtDisp');
+      if (fD) { fD.style.width = pD + '%'; fD.style.background = d > ref*.5 ? 'var(--green)' : d > ref*.2 ? 'var(--yellow)' : 'var(--red)'; }
+      if (aD) { aD.textContent = '$' + d.toLocaleString('es-MX'); aD.style.color = d > ref*.2 ? 'var(--green)' : 'var(--red)'; }
     }
   }
-
-  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
   async function sendMessage() {
     const inputEl = document.getElementById('input');
@@ -1157,9 +580,8 @@
     showTyping();
     try {
       const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text })
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({message: text})
       });
       const data = await res.json();
       hideTyping();
