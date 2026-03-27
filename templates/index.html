@@ -623,8 +623,31 @@ async function doLogin() {
       if (data.error) { errEl.textContent = data.error; return; }
       document.getElementById('auth-screen').style.display = 'none';
       if (data.onboarding_done) {
+        // Restaurar answers desde el perfil guardado
+        if (data.ingreso) answers.ingreso = data.ingreso;
+        if (data.meta) answers.meta = data.meta;
+        if (data.plazo_meses) answers.plazo_meses = data.plazo_meses;
+        answers.vivienda = data.tiene_vivienda;
+        answers.transporte = data.tiene_transporte;
+        answers.deudas = data.tiene_deudas;
+        answers.educacion = data.tiene_educacion;
         document.getElementById('onboarding').style.display = 'none';
         document.getElementById('chat').classList.add('active');
+        hideCats();
+        ingresoRef = answers.ingreso || 0;
+        if (ingresoRef > 0) {
+          getActiveCats().forEach(cat => {
+            const fill = document.getElementById('fill' + cap(cat));
+            const amt  = document.getElementById('amt' + cap(cat));
+            const limite = Math.round(ingresoRef * (LIMITES_BASE[cat] || 0.05));
+            if (fill) { fill.style.width = '0%'; fill.className = 'budget-fill green'; }
+            if (amt)  amt.textContent = '$0 / $' + limite.toLocaleString('es-MX') + ' (0%)';
+          });
+          const fillD = document.getElementById('fillDisp');
+          const amtD  = document.getElementById('amtDisp');
+          if (fillD) { fillD.style.width = '100%'; fillD.style.background = 'var(--green)'; }
+          if (amtD)  { amtD.textContent = '$' + ingresoRef.toLocaleString('es-MX'); amtD.style.color = 'var(--green)'; }
+        }
         fetch('/api/resumen').then(r => r.json()).then(d => {
           addMessage('aldia', d.resumen || '¡Bienvenido de vuelta! 👋 ¿En qué te ayudo hoy?');
         });

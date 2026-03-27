@@ -439,7 +439,7 @@ def login():
             return jsonify({"error": "Email o contraseña incorrectos"}), 401
         session["session_id"] = usuario["session_id"]
         session["email"] = email
-        return jsonify({"status": "ok", "email": email, "onboarding_done": usuario.get("onboarding_done", False)})
+        return jsonify({"status": "ok", "email": email, "onboarding_done": usuario.get("onboarding_done", False), "ingreso": usuario.get("ingreso", 0), "meta": usuario.get("meta", 0), "plazo_meses": usuario.get("plazo_meses", 12), "tiene_vivienda": usuario.get("tiene_vivienda", True), "tiene_transporte": usuario.get("tiene_transporte", True), "tiene_deudas": usuario.get("tiene_deudas", True), "tiene_educacion": usuario.get("tiene_educacion", True)})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -505,4 +505,5 @@ Español casual, emojis, máximo 3 líneas."""
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
