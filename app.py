@@ -190,6 +190,13 @@ REGLAS:
   4. Termina con una decisi√≥n clara: "S√≠ puedes" o "Te recomiendo esperar"
   Usa los n√∫meros reales del perfil, nunca inventes.
 
+FORMATO OBLIGATORIO DE RESPUESTA:
+- M·ximo 2 oraciones
+- Primera oraciÛn: confirmaciÛn del gasto o acciÛn
+- Segunda oraciÛn: estado actual o consejo
+- NUNCA expliques c·lculos, solo da resultados
+- NUNCA hagas listas a menos que el usuario las pida
+
 INSTRUCCION CRITICA: Al final de CADA respuesta agrega:
 BUDGET_DATA:{{"vivienda_pct":0,"comida_pct":0,"transporte_pct":0,"salud_pct":0,"educacion_pct":0,"ocio_pct":0,"ropa_pct":0,"deudas_pct":0,"ahorro_pct":0,"meta_pct":0,"disponible":{disponible},"ingreso":{ingreso}}}
 
@@ -512,6 +519,7 @@ Espa√±ol casual, emojis, m√°ximo 3 l√≠neas."""
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
