@@ -680,6 +680,10 @@ async function doLogin() {
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('onboarding').style.display = 'flex';
   }
+async function resetData() {
+    await fetch('/api/reset-data', {method:'POST'});
+    location.reload();
+  }
 
 </script>
 </body>

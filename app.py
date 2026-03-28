@@ -261,7 +261,11 @@ def check_alerts(perfil, gastos):
             return True
     return False
 
-@app.route("/")`ndef index():`n    if "email" not in session:`n        session.clear()`n    return render_template("index.html")
+@app.route("/")
+def index():
+    if "email" not in session:
+        session.clear()
+    return render_template("index.html")
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
@@ -505,6 +509,17 @@ def login():
 @app.route("/api/logout", methods=["POST"])
 def logout():
     session.clear()
+    return jsonify({"status": "ok"})
+
+
+@app.route("/api/reset-data", methods=["POST"])
+def reset_data():
+    session_id = get_session_id()
+    try:
+        sb.table("mensajes").delete().eq("session_id", session_id).execute()
+        sb.table("gastos").delete().eq("session_id", session_id).execute()
+    except Exception as e:
+        print(f"Error resetting data: {e}")
     return jsonify({"status": "ok"})
 
 @app.route("/api/reset", methods=["POST"])
