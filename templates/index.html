@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -129,7 +129,7 @@
 </head>
 <body>
 
-<div id="onboarding">
+<div id="onboarding" style="display:none;flex:1;flex-direction:column;">
   <div class="ob-header" id="ob-header" style="display:none">
     <button class="ob-back" id="ob-back" onclick="obBack()">←</button>
     <div class="ob-progress-wrap">
@@ -335,6 +335,12 @@
 </div>
 
 <script>
+// Verificar sesion al cargar
+  fetch('/api/check-session').then(r => r.json()).then(d => {
+    if (!d.logged_in) {
+      document.getElementById('auth-screen').style.display = 'flex';
+    }
+  });
   const TOTAL_SLIDES = 11;
   const LIMITES_BASE = {vivienda:.25,comida:.12,transporte:.12,salud:.08,educacion:.02,ocio:.07,ropa:.08,deudas:.08};
   const PCT_AHORRO = {relajado:.10,equilibrado:.20,agresivo:.35};
