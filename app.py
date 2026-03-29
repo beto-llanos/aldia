@@ -267,6 +267,10 @@ def index():
         session.clear()
     return render_template("index.html")
 
+@app.route("/api/check-session")
+def check_session():
+    return jsonify({"logged_in": "email" in session, "email": session.get("email", "")})
+
 @app.route("/api/chat", methods=["POST"])
 def chat():
     data = request.json
