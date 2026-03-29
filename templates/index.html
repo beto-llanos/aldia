@@ -555,6 +555,7 @@
   function updateBudget(b) {
     if (!b) return;
     if (b.ingreso > 0) ingresoRef = b.ingreso;
+    if (ingresoRef === 0 && b.ingreso > 0) ingresoRef = b.ingreso;
     const active = getActiveCats();
     ['vivienda','comida','transporte','salud','educacion','ocio','ropa','deudas'].forEach(cat => {
       const fill = document.getElementById('fill' + cap(cat));
