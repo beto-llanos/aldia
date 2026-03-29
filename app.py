@@ -363,7 +363,25 @@ def generar_plan():
     estrictez = data.get("estrictez", "equilibrado")
     meta_tipo = data.get("meta_tipo", "ahorrar")
 
-    pct_ahorro = {"relajado": 0.10, "equilibrado": 0.20, "agresivo": 0.35}.get(estrictez, 0.20)
+    # Calcular ahorro real basado en categorias activas
+    gastos_fijos_pct = 0
+    if data.get("vivienda", True) is not False:
+        gastos_fijos_pct += 25
+    if data.get("transporte", True) is not False:
+        gastos_fijos_pct += 12
+    if data.get("deudas", True) is not False:
+        gastos_fijos_pct += 8
+    if data.get("educacion", True) is not False:
+        gastos_fijos_pct += 2
+    # Gastos basicos siempre presentes
+    gastos_fijos_pct += 12  # comida
+    gastos_fijos_pct += 8   # salud
+    gastos_fijos_pct += 7   # ocio
+    gastos_fijos_pct += 8   # ropa
+    pct_base = max(0, 100 - gastos_fijos_pct)
+    pct_ahorro_map = {"relajado": pct_base * 0.5, "equilibrado": pct_base * 0.75, "agresivo": pct_base}
+    pct_ahorro = pct_ahorro_map.get(estrictez, pct_base * 0.75) / 100
+    pct_ahorro = max(pct_ahorro, 0.05)  # minimo 5%
     ahorro_mensual = round(ingreso * pct_ahorro)
     ahorro_necesario = round(meta / plazo) if plazo > 0 else 0
     es_viable = ahorro_necesario <= ahorro_mensual

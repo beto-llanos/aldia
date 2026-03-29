@@ -32,7 +32,7 @@
     @keyframes popIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
     .ob-emoji{font-size:52px;margin-bottom:20px;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
     .ob-question{font-size:24px;font-weight:800;line-height:1.25;margin-bottom:8px}
-    .ob-sub{font-size:16px;color:var(--muted2);line-height:1.5;margin-bottom:28px}
+    .ob-sub{font-size:14px;color:var(--muted2);line-height:1.5;margin-bottom:28px}
     .ob-options{display:flex;flex-direction:column;gap:10px;flex:1;overflow-y:auto}
     .ob-option{background:var(--surface);border:2px solid var(--border);border-radius:16px;padding:16px 20px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:14px;text-align:left}
     .ob-option:hover{border-color:var(--accent);background:rgba(59,130,246,.08)}
@@ -67,7 +67,7 @@
     .ob-success{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:14px;overflow-y:auto}
     .ob-success-icon{font-size:64px;animation:popIn .5s cubic-bezier(.34,1.56,.64,1)}
     .ob-success h2{font-size:26px;font-weight:900}
-    .ob-success p{font-size:16px;color:var(--muted2);line-height:1.6;max-width:300px}
+    .ob-success p{font-size:14px;color:var(--muted2);line-height:1.6;max-width:300px}
     .ob-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:320px}
     .ob-tag{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:var(--accent2);padding:6px 14px;border-radius:99px;font-size:13px;font-weight:600}
 
@@ -99,13 +99,13 @@
     .message{display:flex;gap:8px;max-width:84%;animation:fadeUp .2s ease}
     @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
     .message.user{align-self:flex-end;flex-direction:row-reverse}
-    .bubble{padding:10px 14px;border-radius:14px;font-size:16px;line-height:1.6}
+    .bubble{padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.6}
     .message.aldia .bubble{background:var(--surface2);border:1px solid var(--border);border-radius:4px 14px 14px 14px;color:#cbd5e1}
     .message.user .bubble{background:#1d4ed8;border-radius:14px 4px 14px 14px;color:white}
     .alert-bubble{background:rgba(234,179,8,.08)!important;border-color:rgba(234,179,8,.3)!important;color:#fde047!important}
     .msg-avatar{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;margin-top:2px}
     .aldia .msg-avatar{background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:white}
-    .user .msg-avatar{background:var(--surface2);color:var(--muted);font-size:16px}
+    .user .msg-avatar{background:var(--surface2);color:var(--muted);font-size:14px}
     .typing{display:flex;gap:4px;align-items:center;padding:8px 12px}
     .typing span{width:6px;height:6px;background:var(--muted);border-radius:50%;animation:bounce 1.2s infinite}
     .typing span:nth-child(2){animation-delay:.2s}
@@ -115,7 +115,7 @@
     .quick-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted2);padding:5px 12px;border-radius:99px;font-size:11px;font-weight:600;font-family:var(--font);cursor:pointer;white-space:nowrap;transition:all .15s}
     .quick-btn:hover{border-color:var(--accent);color:var(--text)}
     .input-area{padding:10px 16px;padding-bottom:max(10px,env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;flex-shrink:0}
-    .input-area textarea{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:12px;color:var(--text);padding:10px 14px;font-size:16px;font-family:var(--font);resize:none;outline:none;max-height:100px;line-height:1.5;transition:border-color .15s}
+    .input-area textarea{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:12px;color:var(--text);padding:10px 14px;font-size:14px;font-family:var(--font);resize:none;outline:none;max-height:100px;line-height:1.5;transition:border-color .15s}
     .input-area textarea:focus{border-color:var(--accent)}
     .input-area textarea::placeholder{color:var(--border)}
     .send-btn{width:40px;height:40px;background:var(--accent);border:none;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
@@ -129,22 +129,8 @@
 </head>
 <body>
 
-<div id="auth-screen" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:20px;text-align:center;">
-  <div style="width:72px;height:72px;background:linear-gradient(135deg,#1d4ed8,#3b82f6);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:white;margin-bottom:4px;">AL</div>
-  <h1 style="font-size:28px;font-weight:900;">ALD<span style="color:#60a5fa">.IA</span></h1>
-  <p style="font-size:16px;color:#94a3b8;max-width:280px;">Tu asistente financiera diaria. Inicia sesión o crea tu cuenta.</p>
-  <div style="width:100%;max-width:320px;display:flex;flex-direction:column;gap:10px;">
-    <input type="email" id="auth-email" placeholder="tu@email.com" style="background:#0e1320;border:2px solid #1e2740;border-radius:12px;padding:14px 16px;color:#f1f5f9;font-size:16px;font-family:var(--font);outline:none;width:100%;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#1e2740'">
-    <input type="password" id="auth-password" placeholder="Contraseña (mín. 6 caracteres)" style="background:#0e1320;border:2px solid #1e2740;border-radius:12px;padding:14px 16px;color:#f1f5f9;font-size:16px;font-family:var(--font);outline:none;width:100%;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#1e2740'" onkeydown="if(event.key==='Enter')doLogin()">
-    <div id="auth-error" style="color:#ef4444;font-size:13px;min-height:18px;"></div>
-    <button onclick="doLogin()" style="background:#3b82f6;color:white;border:none;border-radius:12px;padding:16px;font-size:15px;font-weight:700;font-family:var(--font);cursor:pointer;width:100%;">Iniciar sesión</button>
-    <button onclick="doRegister()" style="background:#141929;color:#94a3b8;border:1px solid #1e2740;border-radius:12px;padding:16px;font-size:15px;font-weight:600;font-family:var(--font);cursor:pointer;width:100%;">Crear cuenta nueva</button>
-    <button onclick="skipAuth()" style="background:none;color:#64748b;border:none;font-size:13px;cursor:pointer;font-family:var(--font);padding:4px;">Continuar sin cuenta</button>
-  </div>
-</div>
-
-<div id="onboarding" style="display:none;flex:1;flex-direction:column;">
-    <div class="ob-header" id="ob-header" style="display:none">
+<div id="onboarding">
+  <div class="ob-header" id="ob-header" style="display:none">
     <button class="ob-back" id="ob-back" onclick="obBack()">←</button>
     <div class="ob-progress-wrap">
       <div class="ob-step-label" id="ob-step-label"></div>
@@ -265,7 +251,21 @@
       <button class="ob-cta" id="cta-plazo_meses" onclick="obNext()" disabled>Continuar →</button>
     </div>
 
+    
+    <!-- SLIDE 9: Ahorro disponible -->
     <div class="ob-slide" id="slide-9">
+      <span class="ob-emoji">💸</span>
+      <div class="ob-question">¿Cuánto puedes ahorrar al mes?</div>
+      <div class="ob-sub">Considera tus gastos fijos y lo que te queda libre cada mes.</div>
+      <div class="ob-options">
+        <div class="ob-option" onclick="selectOption('ahorro_disponible','todo',this)"><div class="ob-opt-icon">🚀</div><div class="ob-opt-text"><div class="ob-opt-title">Todo lo que pueda</div><div class="ob-opt-desc">Mis gastos son mínimos, puedo ahorrar casi todo</div></div><div class="ob-check"></div></div>
+        <div class="ob-option" onclick="selectOption('ahorro_disponible','mitad',this)"><div class="ob-opt-icon">⚖️</div><div class="ob-opt-text"><div class="ob-opt-title">La mitad aproximadamente</div><div class="ob-opt-desc">Tengo gastos moderados cada mes</div></div><div class="ob-check"></div></div>
+        <div class="ob-option" onclick="selectOption('ahorro_disponible','poco',this)"><div class="ob-opt-icon">🌱</div><div class="ob-opt-text"><div class="ob-opt-title">Un poco cada mes</div><div class="ob-opt-desc">Tengo muchos gastos fijos</div></div><div class="ob-check"></div></div>
+      </div>
+      <button class="ob-cta" id="cta-ahorro_disponible" onclick="obNext()" disabled>Continuar →</button>
+    </div>
+
+<div class="ob-slide" id="slide-10">
       <span class="ob-emoji">⚖️</span>
       <div class="ob-question">¿Qué tan estricto quieres tu plan?</div>
       <div class="ob-sub">Esto define cuánto sacrificas en gustos para alcanzar tu meta más rápido.</div>
@@ -277,13 +277,13 @@
       <button class="ob-cta" id="cta-estrictez" onclick="obNext()" disabled>Continuar →</button>
     </div>
 
-    <div class="ob-slide" id="slide-10">
+    <div class="ob-slide" id="slide-11">
       <div class="ob-success">
         <div class="ob-success-icon">🎉</div>
         <h2>¡Tu plan está listo!</h2>
         <p>Creamos un presupuesto personalizado basado en tu situación. Estas son tus categorías activas:</p>
         <div class="ob-tags" id="active-tags"></div>
-        <div id="plan-output" style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:16px 18px;font-size:13px;line-height:1.7;color:var(--muted2);text-align:left;max-width:360px;width:100%;min-height:50px;max-height:300px;overflow-y:auto;-height:50px;"></div>
+        <div id="plan-output" style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:16px 18px;font-size:13px;line-height:1.7;color:var(--muted2);text-align:left;max-width:360px;width:100%;min-height:50px;"></div>
         <button class="ob-cta" style="max-width:320px" onclick="startChat()">Empezar con ALD.IA →</button>
       </div>
     </div>
@@ -335,7 +335,7 @@
 </div>
 
 <script>
-  const TOTAL_SLIDES = 10;
+  const TOTAL_SLIDES = 11;
   const LIMITES_BASE = {vivienda:.25,comida:.12,transporte:.12,salud:.08,educacion:.02,ocio:.07,ropa:.08,deudas:.08};
   const PCT_AHORRO = {relajado:.10,equilibrado:.20,agresivo:.35};
   let currentSlide = 0;
@@ -479,7 +479,14 @@
       if (amtD)  { amtD.textContent = '$' + ingresoRef.toLocaleString('es-MX'); amtD.style.color = 'var(--green)'; }
     }
 
-    const pct = PCT_AHORRO[answers.estrictez] || 0.20;
+    // Calcular ahorro real segun disponibilidad
+    const gastosFijosPct = (answers.vivienda !== false ? 25 : 0) + (answers.transporte !== false ? 12 : 0) + (answers.deudas !== false ? 8 : 0) + (answers.educacion !== false ? 2 : 0) + 12 + 8 + 7 + 8;
+    const pctBase = Math.max(0, 100 - gastosFijosPct) / 100;
+    const pctMap = {relajado: pctBase * 0.5, equilibrado: pctBase * 0.75, agresivo: pctBase};
+    let pct = pctMap[answers.estrictez] || pctBase * 0.75;
+    if (answers.ahorro_disponible === 'todo') pct = Math.max(pct, pctBase);
+    else if (answers.ahorro_disponible === 'poco') pct = Math.min(pct, 0.15);
+    pct = Math.max(pct, 0.05);
     const ahorroMes = Math.round((answers.ingreso || 0) * pct);
     const plazo = answers.plazo_meses || 12;
     const ahorroNecesario = Math.round((answers.meta || 0) / plazo);
@@ -608,88 +615,6 @@
     sendBtn.disabled = false;
     inputEl.focus();
   }
-
-async function doLogin() {
-    const email = document.getElementById('auth-email').value.trim();
-    const password = document.getElementById('auth-password').value;
-    const errEl = document.getElementById('auth-error');
-    errEl.textContent = '';
-    try {
-      const res = await fetch('/api/login', {
-        method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({email, password})
-      });
-      const data = await res.json();
-      if (data.error) { errEl.textContent = data.error; return; }
-      document.getElementById('auth-screen').style.display = 'none';
-      if (data.onboarding_done) {
-        // Restaurar answers desde el perfil guardado
-        if (data.ingreso) answers.ingreso = data.ingreso;
-        if (data.meta) answers.meta = data.meta;
-        if (data.plazo_meses) answers.plazo_meses = data.plazo_meses;
-        answers.vivienda = data.tiene_vivienda;
-        answers.transporte = data.tiene_transporte;
-        answers.deudas = data.tiene_deudas;
-        answers.educacion = data.tiene_educacion;
-        document.getElementById('onboarding').style.display = 'none';
-        document.getElementById('chat').classList.add('active');
-        hideCats();
-        ingresoRef = answers.ingreso || 0;
-        if (ingresoRef > 0) {
-          getActiveCats().forEach(cat => {
-            const fill = document.getElementById('fill' + cap(cat));
-            const amt  = document.getElementById('amt' + cap(cat));
-            const limite = Math.round(ingresoRef * (LIMITES_BASE[cat] || 0.05));
-            if (fill) { fill.style.width = '0%'; fill.className = 'budget-fill green'; }
-            if (amt)  amt.textContent = '$0 / $' + limite.toLocaleString('es-MX') + ' (0%)';
-          });
-          const fillD = document.getElementById('fillDisp');
-          const amtD  = document.getElementById('amtDisp');
-          if (fillD) { fillD.style.width = '100%'; fillD.style.background = 'var(--green)'; }
-          if (amtD)  { amtD.textContent = '$' + ingresoRef.toLocaleString('es-MX'); amtD.style.color = 'var(--green)'; }
-        }
-        setTimeout(() => { fetch('/api/budget').then(r => r.json()).then(d => { if (d.budget) updateBudget(d.budget); }); }, 300);
-        fetch('/api/resumen').then(r => r.json()).then(d => {
-          addMessage('aldia', d.resumen || '¡Bienvenido de vuelta! 👋 ¿En qué te ayudo hoy?');
-        });
-      } else {
-        document.getElementById('onboarding').style.display = 'flex';
-      }
-    } catch { errEl.textContent = 'Error de conexión.'; }
-  }
-
-  async function doRegister() {
-    const email = document.getElementById('auth-email').value.trim();
-    const password = document.getElementById('auth-password').value;
-    const errEl = document.getElementById('auth-error');
-    errEl.textContent = '';
-    if (!email || !password) { errEl.textContent = 'Ingresa email y contraseña.'; return; }
-    try {
-      const res = await fetch('/api/register', {
-        method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({email, password})
-      });
-      const data = await res.json();
-      if (data.error) { errEl.textContent = data.error; return; }
-      document.getElementById('auth-screen').style.display = 'none';
-      document.getElementById('onboarding').style.display = 'flex';
-    } catch { errEl.textContent = 'Error de conexión.'; }
-  }
-
-  function skipAuth() {
-    document.getElementById('auth-screen').style.display = 'none';
-    document.getElementById('onboarding').style.display = 'flex';
-  }
-async function resetData() {
-    await fetch('/api/reset-data', {method:'POST'});
-    location.reload();
-  }
-
 </script>
 </body>
 </html>
-
-
-
-
-
