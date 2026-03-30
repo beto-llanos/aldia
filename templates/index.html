@@ -215,8 +215,9 @@
     <input type="email" id="auth-email" placeholder="tu@email.com" style="background:#0e1320;border:2px solid #1e2740;border-radius:12px;padding:14px 16px;color:#f1f5f9;font-size:16px;font-family:var(--font);outline:none;width:100%;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#1e2740'">
     <input type="password" id="auth-password" placeholder="Contrasena (min. 6 caracteres)" style="background:#0e1320;border:2px solid #1e2740;border-radius:12px;padding:14px 16px;color:#f1f5f9;font-size:16px;font-family:var(--font);outline:none;width:100%;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#1e2740'" onkeydown="if(event.key==='Enter')doLogin()">
     <div id="auth-error" style="color:#ef4444;font-size:13px;min-height:18px;"></div>
-    <button onclick="doLogin()" style="background:#3b82f6;color:white;border:none;border-radius:12px;padding:16px;font-size:15px;font-weight:700;font-family:var(--font);cursor:pointer;width:100%;">Iniciar sesion</button>
-    <button onclick="doRegister()" style="background:#141929;color:#94a3b8;border:1px solid #1e2740;border-radius:12px;padding:16px;font-size:15px;font-weight:600;font-family:var(--font);cursor:pointer;width:100%;">Crear cuenta nueva</button>
+    <button id="auth-login-btn" onclick="doLogin()" style="background:#3b82f6;color:white;border:none;border-radius:12px;padding:16px;font-size:15px;font-weight:700;font-family:var(--font);cursor:pointer;width:100%;">Iniciar sesion</button>
+    <button id="auth-register-btn" onclick="doRegister()" style="background:#141929;color:#94a3b8;border:1px solid #1e2740;border-radius:12px;padding:16px;font-size:15px;font-weight:600;font-family:var(--font);cursor:pointer;width:100%;">Crear cuenta nueva</button>
+    <button id="auth-switch-btn" onclick="usarOtraCuenta()" style="display:none;background:none;color:#64748b;border:none;padding:8px;font-size:13px;font-family:var(--font);cursor:pointer;text-decoration:underline;">Usar otra cuenta</button>
   </div>
 </div>
 
@@ -533,21 +534,43 @@
     if (!d.logged_in) {
       document.getElementById('auth-screen').style.display = 'flex';
     } else {
-      // Hay sesion activa — mostrar auth con email precargado
+      // Hay sesion activa — modo "continuar"
       const emailEl = document.getElementById('auth-email');
       const passEl = document.getElementById('auth-password');
       const subtitle = document.querySelector('#auth-screen p');
       emailEl.value = d.email || '';
       emailEl.disabled = true;
       passEl.style.display = 'none';
-      if (subtitle) subtitle.textContent = 'Sesion activa. Continua o inicia con otra cuenta.';
-      // Cambiar boton principal a "Continuar"
-      const loginBtn = document.querySelector('#auth-screen button');
-      loginBtn.textContent = 'Continuar como ' + (d.email || 'usuario');
+      if (subtitle) subtitle.textContent = 'Sesion activa. Continua o usa otra cuenta.';
+      const loginBtn = document.getElementById('auth-login-btn');
+      loginBtn.textContent = 'Continuar como ' + (d.nombre || d.email || 'usuario');
       loginBtn.onclick = () => resumeSession(d);
+      document.getElementById('auth-register-btn').style.display = 'none';
+      document.getElementById('auth-switch-btn').style.display = 'block';
       document.getElementById('auth-screen').style.display = 'flex';
     }
   });
+
+  function usarOtraCuenta() {
+    // Cerrar sesion actual y mostrar formulario limpio
+    fetch('/api/logout', {method: 'POST'}).finally(() => {
+      const emailEl = document.getElementById('auth-email');
+      const passEl = document.getElementById('auth-password');
+      const subtitle = document.querySelector('#auth-screen p');
+      const loginBtn = document.getElementById('auth-login-btn');
+      emailEl.value = '';
+      emailEl.disabled = false;
+      passEl.style.display = '';
+      passEl.value = '';
+      if (subtitle) subtitle.textContent = 'Tu asistente financiera diaria. Inicia sesion o crea tu cuenta.';
+      loginBtn.textContent = 'Iniciar sesion';
+      loginBtn.onclick = doLogin;
+      document.getElementById('auth-register-btn').style.display = '';
+      document.getElementById('auth-switch-btn').style.display = 'none';
+      document.getElementById('auth-error').textContent = '';
+      emailEl.focus();
+    });
+  }
 
   function resumeSession(d) {
     if (d.ingreso) answers.ingreso = d.ingreso;
