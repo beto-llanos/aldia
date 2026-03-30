@@ -125,6 +125,40 @@
     ::-webkit-scrollbar{width:3px}
     ::-webkit-scrollbar-track{background:transparent}
     ::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+
+    /* Health Score Panel */
+    .health-panel{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+    .score-ring{position:relative;width:48px;height:48px;flex-shrink:0}
+    .score-ring svg{width:48px;height:48px;transform:rotate(-90deg)}
+    .score-ring circle{fill:none;stroke-width:4;stroke-linecap:round}
+    .score-ring .track{stroke:var(--surface2)}
+    .score-ring .fill{stroke:var(--accent);stroke-dasharray:138;stroke-dashoffset:138;transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)}
+    .score-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:var(--text)}
+    .score-info{flex:1;min-width:0}
+    .score-nivel{font-size:12px;font-weight:700;color:var(--accent2)}
+    .score-personalidad{font-size:11px;color:var(--muted2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .score-bars{display:flex;gap:3px;margin-top:4px}
+    .score-bar-item{flex:1;height:3px;border-radius:99px;background:var(--surface2);overflow:hidden}
+    .score-bar-fill{height:100%;border-radius:99px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+    .tip-box{background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.15);border-radius:10px;padding:7px 10px;font-size:11px;color:var(--muted2);line-height:1.4;max-width:160px;flex-shrink:0}
+    .tip-box strong{color:var(--accent2);font-size:10px;display:block;margin-bottom:2px}
+
+    /* Modal ¿Lo puedo pagar? */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;z-index:100;backdrop-filter:blur(4px);animation:fadeIn .15s ease}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .modal-card{background:var(--surface);border-radius:24px 24px 0 0;padding:24px;width:100%;max-width:480px;animation:slideUp .25s cubic-bezier(.4,0,.2,1)}
+    @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+    .modal-title{font-size:18px;font-weight:800;margin-bottom:4px}
+    .modal-sub{font-size:13px;color:var(--muted2);margin-bottom:16px}
+    .modal-input-wrap{background:var(--surface2);border:2px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:8px;margin-bottom:12px;transition:border-color .15s}
+    .modal-input-wrap:focus-within{border-color:var(--accent)}
+    .modal-input-wrap span{font-size:22px;font-weight:800;color:var(--muted)}
+    .modal-input-wrap input{flex:1;background:none;border:none;color:var(--text);font-size:26px;font-weight:800;font-family:var(--font);outline:none}
+    .modal-result{border-radius:12px;padding:12px 16px;font-size:14px;font-weight:600;min-height:44px;display:flex;align-items:center;margin-bottom:14px;transition:all .2s}
+    .modal-result.ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#4ade80}
+    .modal-result.nok{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#f87171}
+    .modal-result.empty{background:var(--surface2);color:var(--muted)}
+    .modal-close{width:100%;background:var(--surface2);border:none;border-radius:12px;padding:14px;color:var(--muted2);font-size:14px;font-weight:600;font-family:var(--font);cursor:pointer}
   </style>
 </head>
 <body>
@@ -309,10 +343,36 @@
     <div class="chat-avatar">AL</div>
     <div class="chat-header-info">
       <h1>ALD<span>.IA</span></h1>
-      <p>● En línea — tu asistente financiera diaria</p>
+      <p id="chat-email-label">● En línea — tu asistente financiera diaria</p>
     </div>
-    <button class="chat-reset" onclick="hardReset()">Nueva sesión</button>
+    <button class="chat-reset" onclick="doLogout()" style="margin-left:auto">Salir</button>
+    <button class="chat-reset" onclick="hardReset()" style="margin-left:6px">↺ Reset</button>
   </div>
+  <!-- Health Score Panel -->
+  <div class="health-panel" id="health-panel" style="display:none">
+    <div class="score-ring">
+      <svg viewBox="0 0 48 48">
+        <circle class="track" cx="24" cy="24" r="20"/>
+        <circle class="fill" id="score-ring-fill" cx="24" cy="24" r="20"/>
+      </svg>
+      <div class="score-num" id="score-num">—</div>
+    </div>
+    <div class="score-info">
+      <div class="score-nivel" id="score-nivel">—</div>
+      <div class="score-personalidad" id="score-personalidad">—</div>
+      <div class="score-bars">
+        <div class="score-bar-item" title="Ahorro"><div class="score-bar-fill" id="sb-ahorro" style="background:var(--green)"></div></div>
+        <div class="score-bar-item" title="Control"><div class="score-bar-fill" id="sb-control" style="background:var(--accent)"></div></div>
+        <div class="score-bar-item" title="Ritmo"><div class="score-bar-fill" id="sb-ritmo" style="background:var(--yellow)"></div></div>
+        <div class="score-bar-item" title="Meta"><div class="score-bar-fill" id="sb-meta" style="background:#a78bfa"></div></div>
+      </div>
+    </div>
+    <div class="tip-box" id="tip-box">
+      <strong>💡 Tip del día</strong>
+      <span id="tip-text">Cargando...</span>
+    </div>
+  </div>
+
   <div class="budget-grid">
     <div class="budget-item" id="bi-vivienda"><span class="budget-label">Vivienda</span><div class="budget-track"><div class="budget-fill green" id="fillVivienda"></div></div><span class="budget-amount" id="amtVivienda">—</span></div>
     <div class="budget-item" id="bi-comida"><span class="budget-label">Comida</span><div class="budget-track"><div class="budget-fill green" id="fillComida"></div></div><span class="budget-amount" id="amtComida">—</span></div>
@@ -331,19 +391,40 @@
       <div class="disponible-track"><div class="disponible-fill" id="fillDisp"></div></div>
       <span class="disponible-amount" id="amtDisp">—</span>
     </div>
+    <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+      <span style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px">Ritmo del mes</span>
+      <div style="flex:1;height:3px;background:var(--surface2);border-radius:99px;overflow:hidden"><div id="fillRitmo" style="height:100%;border-radius:99px;background:var(--green);width:0%;transition:width .6s"></div></div>
+      <span id="lblRitmo" style="font-size:9px;color:var(--muted);white-space:nowrap">—</span>
+    </div>
   </div>
   <div class="messages" id="messages"></div>
   <div class="quick-actions">
-    <button class="quick-btn" onclick="sendQuick('¿Cómo voy este mes?')">¿Cómo voy?</button>
-    <button class="quick-btn" onclick="sendQuick('¿Cuánto puedo gastar hoy?')">¿Cuánto puedo gastar?</button>
-    <button class="quick-btn" onclick="sendQuick('¿Cuándo llego a mi meta?')">¿Cuándo llego?</button>
-    <button class="quick-btn" onclick="sendQuick('Muéstrame mi resumen del mes')">Resumen</button>
+    <button class="quick-btn" onclick="sendQuick('¿Cómo voy este mes?')">📊 ¿Cómo voy?</button>
+    <button class="quick-btn" onclick="sendQuick('¿Cuánto puedo gastar hoy sin afectar mi meta?')">💸 ¿Cuánto puedo gastar?</button>
+    <button class="quick-btn" onclick="sendQuick('¿Qué puedo recortar para ahorrar más?')">✂️ ¿Qué recorto?</button>
+    <button class="quick-btn" onclick="sendQuick('¿Cuándo llego a mi meta con mi ritmo actual?')">🎯 ¿Cuándo llego?</button>
+    <button class="quick-btn" onclick="sendQuick('Dame un resumen detallado de mis gastos este mes')">📋 Resumen</button>
+    <button class="quick-btn" onclick="abrirModal()">💸 ¿Lo puedo pagar?</button>
   </div>
   <div class="input-area">
-    <textarea id="input" placeholder="Ej: gasté $200 en comida..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <textarea id="input" placeholder="Ej: gasté $200 en comida, recibí mi quincena..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
     <button class="send-btn" id="sendBtn" onclick="sendMessage()">
       <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
     </button>
+  </div>
+</div>
+
+<!-- Modal ¿Lo puedo pagar? -->
+<div id="modal-pagar" style="display:none" class="modal-overlay" onclick="if(event.target===this)cerrarModal()">
+  <div class="modal-card">
+    <div class="modal-title">💸 ¿Lo puedo pagar?</div>
+    <div class="modal-sub">Ingresa el monto y te digo si afecta tu meta</div>
+    <div class="modal-input-wrap">
+      <span>$</span>
+      <input type="number" id="modal-monto" placeholder="0" inputmode="numeric" oninput="checkPuedePagar(this.value)">
+    </div>
+    <div class="modal-result empty" id="modal-result">Escribe un monto para ver si puedes permitírtelo</div>
+    <button class="modal-close" onclick="cerrarModal()">Cerrar</button>
   </div>
 </div>
 
@@ -352,8 +433,49 @@
   fetch('/api/check-session').then(r => r.json()).then(d => {
     if (!d.logged_in) {
       document.getElementById('auth-screen').style.display = 'flex';
+    } else {
+      // Hay sesion activa — mostrar auth con email precargado
+      const emailEl = document.getElementById('auth-email');
+      const passEl = document.getElementById('auth-password');
+      const subtitle = document.querySelector('#auth-screen p');
+      emailEl.value = d.email || '';
+      emailEl.disabled = true;
+      passEl.style.display = 'none';
+      if (subtitle) subtitle.textContent = 'Sesion activa. Continua o inicia con otra cuenta.';
+      // Cambiar boton principal a "Continuar"
+      const loginBtn = document.querySelector('#auth-screen button');
+      loginBtn.textContent = 'Continuar como ' + (d.email || 'usuario');
+      loginBtn.onclick = () => resumeSession(d);
+      document.getElementById('auth-screen').style.display = 'flex';
     }
   });
+
+  function resumeSession(d) {
+    if (d.ingreso) answers.ingreso = d.ingreso;
+    if (d.meta) answers.meta = d.meta;
+    if (d.plazo_meses) answers.plazo_meses = d.plazo_meses;
+    answers.vivienda = d.tiene_vivienda;
+    answers.transporte = d.tiene_transporte;
+    answers.deudas = d.tiene_deudas;
+    answers.educacion = d.tiene_educacion;
+    document.getElementById('auth-screen').style.display = 'none';
+    if (d.email) {
+      const lbl = document.getElementById('chat-email-label');
+      if (lbl) lbl.textContent = '● ' + d.email;
+    }
+    if (d.onboarding_done) {
+      document.getElementById('chat').classList.add('active');
+      hideCats();
+      ingresoRef = answers.ingreso || 0;
+      setTimeout(() => {
+        fetch('/api/budget').then(r=>r.json()).then(b=>{ if(b.budget) updateBudget(b.budget); });
+        loadHealthScore();
+      }, 300);
+      fetch('/api/resumen').then(r=>r.json()).then(b=>{ addMessage('aldia', b.resumen || '¡Bienvenido de vuelta!'); });
+    } else {
+      document.getElementById('onboarding').style.display = 'flex';
+    }
+  }
   const TOTAL_SLIDES = 11;
   const LIMITES_BASE = {vivienda:.25,comida:.12,transporte:.12,salud:.08,educacion:.02,ocio:.07,ropa:.08,deudas:.08};
   const PCT_AHORRO = {relajado:.10,equilibrado:.20,agresivo:.35};
@@ -481,6 +603,7 @@
     document.getElementById('onboarding').style.display = 'none';
     document.getElementById('chat').classList.add('active');
     hideCats();
+    setTimeout(() => loadHealthScore(), 1500); // después de setup
 
     ingresoRef = answers.ingreso || 0;
 
@@ -570,6 +693,7 @@
     if (!b) return;
     if (b.ingreso > 0) ingresoRef = b.ingreso;
     if (ingresoRef === 0 && b.ingreso > 0) ingresoRef = b.ingreso;
+    updateRitmo(b);
     const active = getActiveCats();
     ['vivienda','comida','transporte','salud','educacion','ocio','ropa','deudas'].forEach(cat => {
       const fill = document.getElementById('fill' + cap(cat));
@@ -622,7 +746,7 @@
       const data = await res.json();
       hideTyping();
       addMessage('aldia', data.response, data.alert);
-      if (data.budget) updateBudget(data.budget);
+      if (data.budget) { updateBudget(data.budget); loadHealthScore(); }
     } catch {
       hideTyping();
       addMessage('aldia', 'Error de conexión. Intenta de nuevo.');
@@ -649,9 +773,14 @@
         answers.deudas = data.tiene_deudas;
         answers.educacion = data.tiene_educacion;
         document.getElementById('chat').classList.add('active');
+        const lbl = document.getElementById('chat-email-label');
+        if (lbl) lbl.textContent = '● ' + email;
         hideCats();
         ingresoRef = answers.ingreso || 0;
-        setTimeout(() => { fetch('/api/budget').then(r=>r.json()).then(d=>{ if(d.budget) updateBudget(d.budget); }); }, 300);
+        setTimeout(() => {
+          fetch('/api/budget').then(r=>r.json()).then(d=>{ if(d.budget) updateBudget(d.budget); });
+          loadHealthScore();
+        }, 300);
         fetch('/api/resumen').then(r=>r.json()).then(d=>{ addMessage('aldia', d.resumen || 'Bienvenido de vuelta!'); });
       } else {
         document.getElementById('onboarding').style.display = 'flex';
@@ -672,8 +801,162 @@
       document.getElementById('onboarding').style.display = 'flex';
     } catch { errEl.textContent = 'Error de conexion.'; }
   }
-  function hardReset() { fetch('/api/reset',{method:'POST'}); location.reload(); }
+  function hardReset() {
+    if (!confirm('¿Seguro? Esto borra todos tus gastos e historial del mes.')) return;
+    fetch('/api/reset',{method:'POST'}); location.reload();
+  }
+
+  function doLogout() {
+    fetch('/api/logout',{method:'POST'}).then(() => location.reload());
+  }
+
+  function updateRitmo(budget) {
+    if (!budget || !budget.ingreso || budget.ingreso === 0) return;
+    const hoy = new Date().getDate();
+    const diasMes = new Date(new Date().getFullYear(), new Date().getMonth()+1, 0).getDate();
+    const pctMes = hoy / diasMes; // fraccion del mes transcurrida
+    const gastado = budget.ingreso - budget.disponible;
+    const ritmo = gastado / budget.ingreso; // fraccion del ingreso ya gastada
+    const proyeccion = ritmo / pctMes; // si sigo asi, gasto X veces mi ingreso
+    const fill = document.getElementById('fillRitmo');
+    const lbl = document.getElementById('lblRitmo');
+    if (!fill || !lbl) return;
+    const pctBarra = Math.min(proyeccion * 100, 100);
+    fill.style.width = pctBarra + '%';
+    if (proyeccion <= 0.85) {
+      fill.style.background = 'var(--green)';
+      lbl.textContent = '✅ Buen ritmo';
+      lbl.style.color = 'var(--green)';
+    } else if (proyeccion <= 1.05) {
+      fill.style.background = 'var(--yellow)';
+      lbl.textContent = '⚠️ Al límite';
+      lbl.style.color = 'var(--yellow)';
+    } else {
+      fill.style.background = 'var(--red)';
+      lbl.textContent = '🔴 Ritmo alto';
+      lbl.style.color = 'var(--red)';
+    }
+  }
   async function resetData() { await fetch('/api/reset-data',{method:'POST'}); location.reload(); }
+
+  // ── Tips del día (rotativos por día del mes) ──────────────────────────────
+  const TIPS = [
+    "La regla 50/30/20: 50% necesidades, 30% gustos, 20% ahorro.",
+    "Revisar tus gastos 5 min al día evita sorpresas a fin de mes.",
+    "Pagar primero el ahorro (antes de gastar) es el hábito #1 de los que acumulan riqueza.",
+    "Las suscripciones pequeñas suman mucho: audítalas cada 3 meses.",
+    "Un fondo de emergencia debe cubrir 3-6 meses de gastos.",
+    "Comprar a meses sin intereses solo conviene si CETES rinde más que el costo.",
+    "Evita usar la tarjeta de crédito si no puedes pagar el total a fin de mes.",
+    "El primer objetivo financiero: nunca quedar en cero antes de quincena.",
+    "Automatiza tu ahorro el mismo día que recibes tu ingreso.",
+    "Un presupuesto no te limita — te da permiso de gastar sin culpa.",
+    "Invierte antes de comprar lo que quieres, no después.",
+    "Comparar precios 10 min puede ahorrarte hasta 30% en compras grandes.",
+    "Si usas Uber a diario, calcula cuánto al mes: puede ser tu renta.",
+    "Las deudas con mayor interés se pagan primero (método avalancha).",
+    "Cocinar 3 veces a la semana puede ahorrar $1,500 pesos al mes.",
+    "Tu celular puede ser tu mejor o peor herramienta financiera.",
+    "Anotar un gasto, aunque sea mentalmente, lo hace más consciente.",
+    "El 'efecto latte': pequeños gastos diarios suman miles al mes.",
+    "Los CETES desde $100 pesos. Tu dinero trabajando desde hoy.",
+    "Antes de comprar algo, espera 48 hrs. El 80% de las veces ya no lo quieres.",
+    "Negociar tu salario una vez puede valer más que 10 años de ahorro.",
+    "Separa el dinero de 'necesito' y 'quiero' en cuentas distintas.",
+    "Aprende una habilidad nueva cada mes: pueden valer miles de pesos.",
+    "El interés compuesto es tu mejor aliado si empiezas a invertir hoy.",
+    "Revisa tu estado de cuenta bancario al menos una vez por semana.",
+    "Un seguro de gastos médicos mayores puede salvarte de la quiebra.",
+    "Gasta en experiencias, no en cosas. Las cosas se deprecian, los recuerdos no.",
+    "Si no sabes cuánto gastas en comida al mes, probablemente es demasiado.",
+    "El objetivo no es ser rico: es no depender de la próxima quincena.",
+    "Cada peso que ahorras hoy es libertad que compras para el futuro.",
+  ];
+
+  function cargarTipDelDia() {
+    const dia = new Date().getDate();
+    const tip = TIPS[(dia - 1) % TIPS.length];
+    const el = document.getElementById('tip-text');
+    if (el) el.textContent = tip;
+  }
+
+  // ── Health Score ──────────────────────────────────────────────────────────
+  function updateHealthScore(data) {
+    if (!data || data.error) return;
+    const panel = document.getElementById('health-panel');
+    if (panel) panel.style.display = 'flex';
+
+    const score = data.score;
+    const circumference = 2 * Math.PI * 20; // r=20
+    const offset = circumference - (score / 100) * circumference;
+    const ringFill = document.getElementById('score-ring-fill');
+    if (ringFill) {
+      ringFill.style.strokeDasharray = circumference;
+      ringFill.style.strokeDashoffset = offset;
+      ringFill.style.stroke = score >= 70 ? 'var(--green)' : score >= 50 ? 'var(--yellow)' : 'var(--red)';
+    }
+
+    const numEl = document.getElementById('score-num');
+    if (numEl) numEl.textContent = score;
+
+    const nivelEl = document.getElementById('score-nivel');
+    if (nivelEl) nivelEl.textContent = (data.nivel || '') + ' · ' + (data.personalidad || '');
+
+    const persEl = document.getElementById('score-personalidad');
+    if (persEl) persEl.textContent = data.personalidad_desc || '';
+
+    if (data.breakdown) {
+      const b = data.breakdown;
+      const set = (id, val, max) => {
+        const el = document.getElementById(id);
+        if (el) el.style.width = Math.min((val / max) * 100, 100) + '%';
+      };
+      set('sb-ahorro', b.ahorro, 30);
+      set('sb-control', b.control, 30);
+      set('sb-ritmo', b.ritmo, 25);
+      set('sb-meta', b.meta, 15);
+    }
+    cargarTipDelDia();
+  }
+
+  function loadHealthScore() {
+    fetch('/api/health-score').then(r => r.json()).then(updateHealthScore).catch(() => {});
+  }
+
+  // ── Modal ¿Lo puedo pagar? ────────────────────────────────────────────────
+  function abrirModal() {
+    const m = document.getElementById('modal-pagar');
+    if (m) { m.style.display = 'flex'; document.getElementById('modal-monto').focus(); }
+  }
+
+  function cerrarModal() {
+    const m = document.getElementById('modal-pagar');
+    if (m) { m.style.display = 'none'; document.getElementById('modal-monto').value = ''; }
+    document.getElementById('modal-result').className = 'modal-result empty';
+    document.getElementById('modal-result').textContent = 'Escribe un monto para ver si puedes permitírtelo';
+  }
+
+  let _puedeTimer = null;
+  function checkPuedePagar(val) {
+    clearTimeout(_puedeTimer);
+    const monto = parseFloat(val);
+    const resultEl = document.getElementById('modal-result');
+    if (!monto || monto <= 0) {
+      resultEl.className = 'modal-result empty';
+      resultEl.textContent = 'Escribe un monto para ver si puedes permitírtelo';
+      return;
+    }
+    _puedeTimer = setTimeout(() => {
+      fetch('/api/puede-pagar', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({monto})
+      }).then(r => r.json()).then(d => {
+        if (d.error) return;
+        resultEl.className = 'modal-result ' + (d.puede ? 'ok' : 'nok');
+        resultEl.textContent = d.mensaje + (d.impacto_pct ? ` (${d.impacto_pct}% de tu ingreso)` : '');
+      }).catch(() => {});
+    }, 400);
+  }
 </script>
 </body>
 </html>
