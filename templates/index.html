@@ -139,6 +139,17 @@
     .banco-opt:hover{border-color:var(--accent);background:rgba(59,130,246,.08);}
     .banco-close{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-size:.88rem;}
     @supports(-webkit-touch-callout:none){.input-area{padding-bottom:env(safe-area-inset-bottom,10px);}}
+    .meta-input-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;}
+    .meta-input-block .mi-label{font-size:.82rem;font-weight:600;color:var(--text);}
+    .meta-input-block .mi-wrap{display:flex;align-items:center;gap:6px;}
+    .meta-input-block .mi-currency{color:var(--text2);font-size:.9rem;}
+    .meta-input-block input{flex:1;background:none;border:none;border-bottom:1px solid var(--border);color:var(--text);font-size:1rem;padding:2px 4px;outline:none;}
+    .meta-input-block input:focus{border-bottom-color:var(--accent);}
+    .meta-input-block .mi-hint{font-size:.72rem;color:var(--text2);}
+    .meta-slider-row{display:flex;flex-direction:column;gap:4px;}
+    .meta-slider-row label{display:flex;justify-content:space-between;font-size:.8rem;color:var(--text);}
+    .meta-slider-row label span{color:var(--accent);font-weight:700;}
+    .meta-slider-row input[type=range]{width:100%;accent-color:var(--accent);}
   </style>
 </head>
 <body>
@@ -263,28 +274,28 @@
 
     <div class="ob-slide" id="slide-6">
       <span class="ob-emoji">🎯</span>
-      <div class="ob-question">¿Cuál es tu meta principal?</div>
-      <div class="ob-sub">Esto personaliza los consejos y alertas de ALD.IA para ti.</div>
-      <div class="ob-options">
-        <div class="ob-option" onclick="selectOption('meta_tipo','ahorrar',this)"><div class="ob-opt-icon">🏦</div><div class="ob-opt-text"><div class="ob-opt-title">Ahorrar dinero</div><div class="ob-opt-desc">Construir un fondo o emergencias</div></div><div class="ob-check"></div></div>
-        <div class="ob-option" onclick="selectOption('meta_tipo','compra',this)"><div class="ob-opt-icon">🛍️</div><div class="ob-opt-text"><div class="ob-opt-title">Comprar algo grande</div><div class="ob-opt-desc">Auto, viaje, gadget, casa</div></div><div class="ob-check"></div></div>
-        <div class="ob-option" onclick="selectOption('meta_tipo','deudas',this)"><div class="ob-opt-icon">🔓</div><div class="ob-opt-text"><div class="ob-opt-title">Pagar mis deudas</div><div class="ob-opt-desc">Librarme de créditos o tarjetas</div></div><div class="ob-check"></div></div>
-        <div class="ob-option" onclick="selectOption('meta_tipo','control',this)"><div class="ob-opt-icon">📊</div><div class="ob-opt-text"><div class="ob-opt-title">Controlar mis gastos</div><div class="ob-opt-desc">Saber a dónde va mi dinero</div></div><div class="ob-check"></div></div>
+      <div class="ob-question">¿Cuáles son tus metas?</div>
+      <div class="ob-sub">Puedes elegir más de una. Las ordenamos por prioridad para ti.</div>
+      <div class="ob-options" id="metas-options">
+        <div class="ob-option" onclick="toggleMeta('ahorrar','Ahorrar dinero',this)"><div class="ob-opt-icon">🏦</div><div class="ob-opt-text"><div class="ob-opt-title">Ahorrar dinero</div><div class="ob-opt-desc">Fondo de emergencias o futuro</div></div><div class="ob-check"></div></div>
+        <div class="ob-option" onclick="toggleMeta('compra','Comprar algo grande',this)"><div class="ob-opt-icon">🛍️</div><div class="ob-opt-text"><div class="ob-opt-title">Comprar algo grande</div><div class="ob-opt-desc">Auto, viaje, gadget, casa</div></div><div class="ob-check"></div></div>
+        <div class="ob-option" onclick="toggleMeta('deudas','Pagar deudas',this)"><div class="ob-opt-icon">🔓</div><div class="ob-opt-text"><div class="ob-opt-title">Pagar mis deudas</div><div class="ob-opt-desc">Librarme de créditos o tarjetas</div></div><div class="ob-check"></div></div>
+        <div class="ob-option" onclick="toggleMeta('control','Controlar gastos',this)"><div class="ob-opt-icon">📊</div><div class="ob-opt-text"><div class="ob-opt-title">Controlar mis gastos</div><div class="ob-opt-desc">Saber a dónde va mi dinero</div></div><div class="ob-check"></div></div>
       </div>
-      <button class="ob-cta" id="cta-meta_tipo" onclick="obNext()" disabled>Continuar →</button>
+      <button class="ob-cta" id="cta-meta_tipo" onclick="goToMetasSlide()" disabled>Continuar →</button>
     </div>
 
     <div class="ob-slide" id="slide-7">
       <span class="ob-emoji">🏆</span>
-      <div class="ob-question">¿Cuánto quieres ahorrar?</div>
-      <div class="ob-sub">Escribe el monto de tu meta. Si no tienes una cifra exacta, pon algo aproximado.</div>
-      <div class="ob-amount-wrap">
-        <span class="ob-currency">$</span>
-        <input type="number" class="ob-amount-input" id="input-meta" placeholder="50,000" inputmode="numeric" oninput="validateMeta()">
-        <span style="font-size:13px;color:var(--muted);flex-shrink:0">MXN</span>
+      <div class="ob-question" id="metas-slide-title">¿Cuánto quieres para cada meta?</div>
+      <div class="ob-sub" id="metas-slide-sub">Escribe el monto aproximado de cada una.</div>
+      <div id="metas-inputs-list" style="width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px"></div>
+      <div id="metas-dist-section" style="display:none;width:100%;max-width:340px;margin-top:8px">
+        <div style="font-size:.78rem;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">¿Cómo distribuir tu ahorro mensual?</div>
+        <div id="metas-sliders" style="display:flex;flex-direction:column;gap:10px"></div>
+        <div id="metas-dist-hint" style="font-size:.76rem;color:var(--text2);margin-top:6px;text-align:center"></div>
       </div>
-      <div class="ob-amount-hint" id="meta-hint">Tu meta de ahorro o compra</div>
-      <button class="ob-cta" id="cta-meta" onclick="obNext()" disabled>Continuar →</button>
+      <button class="ob-cta" id="cta-meta" onclick="obNext()" disabled style="margin-top:14px">Continuar →</button>
     </div>
 
     <div class="ob-slide" id="slide-8">
@@ -364,7 +375,8 @@
         <div class="budget-item" id="bi-ropa"><span class="budget-label">Ropa</span><div class="budget-track"><div class="budget-fill green" id="fillRopa"></div></div><span class="budget-amount" id="amtRopa">-</span></div>
         <div class="budget-item" id="bi-deudas"><span class="budget-label">Deudas</span><div class="budget-track"><div class="budget-fill green" id="fillDeudas"></div></div><span class="budget-amount" id="amtDeudas">-</span></div>
         <div class="budget-item"><span class="budget-label">Ahorro</span><div class="budget-track"><div class="budget-fill green" id="fillAhorro"></div></div><span class="budget-amount" id="amtAhorro">-</span></div>
-        <div class="budget-item"><span class="budget-label">Meta</span><div class="budget-track"><div class="budget-fill green" id="fillMeta"></div></div><span class="budget-amount" id="amtMeta">-</span></div>
+        <div id="metas-list"></div>
+        <div class="budget-item" style="display:none"><div class="budget-fill green" id="fillMeta"></div><span class="budget-amount" id="amtMeta"></span></div>
       </div>
       <div class="disponible-bar">
         <div class="disponible-inner"><span class="disponible-label">Disponible</span><div class="disponible-track"><div class="disponible-fill" id="fillDisp"></div></div><span class="disponible-amount" id="amtDisp">-</span></div>
@@ -715,6 +727,7 @@
     setTimeout(() => loadHealthScore(), 1500); // después de setup
 
     ingresoRef = answers.ingreso || 0;
+    renderMetasBars();
 
     if (ingresoRef > 0) {
       getActiveCats().forEach(cat => {
@@ -742,17 +755,19 @@
     pct = Math.max(pct, 0.05);
     const ahorroMes = Math.round((answers.ingreso || 0) * pct);
     const plazo = answers.plazo_meses || 12;
-    const ahorroNecesario = Math.round((answers.meta || 0) / plazo);
+    const totalMeta = (answers.metas || []).reduce((s,m) => s + (m.monto||0), 0) || (answers.meta || 0);
+    const ahorroNecesario = Math.round(totalMeta / plazo);
     const esViable = ahorroNecesario <= ahorroMes;
     const cats = getActiveCats().map(catLabel).join(', ');
 
     let viabilidad = '';
-    if (answers.meta > 0 && answers.ingreso > 0) {
-      if (esViable) {
-        viabilidad = '✅ ¡Tu meta de $' + answers.meta.toLocaleString('es-MX') + ' en ' + plazo + ' meses es alcanzable! Necesitas ahorrar $' + ahorroNecesario.toLocaleString('es-MX') + '/mes.';
-      } else {
-        viabilidad = '⚠️ Para $' + answers.meta.toLocaleString('es-MX') + ' en ' + plazo + ' meses necesitarías $' + ahorroNecesario.toLocaleString('es-MX') + '/mes, pero con tu plan llegas a $' + ahorroMes.toLocaleString('es-MX') + '/mes. Meta realista: $' + (ahorroMes * plazo).toLocaleString('es-MX') + '.';
-      }
+    const metasList = answers.metas || (answers.meta > 0 ? [{tipo:'ahorrar',label:'🏦 Ahorrar',monto:answers.meta,pct:100}] : []);
+    if (metasList.length > 0 && answers.ingreso > 0) {
+      viabilidad = metasList.filter(m => m.monto > 0).map(m => {
+        const necesario = Math.round(m.monto * (m.pct / 100) / plazo);
+        const viable = necesario <= ahorroMes;
+        return (viable ? '✅ ' : '⚠️ ') + m.label + ': $' + m.monto.toLocaleString('es-MX') + ' en ' + plazo + ' meses ($' + necesario.toLocaleString('es-MX') + '/mes' + (m.pct < 100 ? ', ' + m.pct + '% de tu ahorro' : '') + ')';
+      }).join('\n');
     }
 
     const saludo = answers.nombre ? '¡Listo, ' + answers.nombre + '! 🎉' : '¡Todo listo! 🎉';
@@ -1303,6 +1318,154 @@
 
   function openSidebar(){document.getElementById("sidebar").classList.add("open");document.getElementById("sb-overlay").classList.add("open");}
   function closeSidebar(){document.getElementById("sidebar").classList.remove("open");document.getElementById("sb-overlay").classList.remove("open");}
+
+  // --- MULTI-METAS ---
+  const METAS_LABELS = {ahorrar:'🏦 Ahorrar',compra:'🛍️ Compra grande',deudas:'🔓 Pagar deudas',control:'📊 Control gastos'};
+  answers.metas_tipos = [];
+
+  function toggleMeta(tipo, label, el) {
+    const idx = answers.metas_tipos.indexOf(tipo);
+    if (idx >= 0) {
+      answers.metas_tipos.splice(idx, 1);
+      el.classList.remove('selected');
+      el.querySelector('.ob-check').innerHTML = '';
+    } else {
+      answers.metas_tipos.push(tipo);
+      el.classList.add('selected');
+      el.querySelector('.ob-check').innerHTML = '✓';
+    }
+    document.getElementById('cta-meta_tipo').disabled = answers.metas_tipos.length === 0;
+  }
+
+  function goToMetasSlide() {
+    const tipos = answers.metas_tipos;
+    const needsAmount = tipos.filter(t => t !== 'control');
+    const list = document.getElementById('metas-inputs-list');
+    list.innerHTML = '';
+    if (needsAmount.length === 0) {
+      // solo control gastos — saltar monto
+      answers.metas = [{tipo:'control',label:'Control gastos',monto:0,pct:100}];
+      document.getElementById('cta-meta').disabled = false;
+      document.getElementById('metas-slide-title').textContent = '¡Perfecto!';
+      document.getElementById('metas-slide-sub').textContent = 'Te ayudaré a controlar tus gastos sin una meta de ahorro específica.';
+      document.getElementById('metas-dist-section').style.display = 'none';
+    } else {
+      document.getElementById('metas-slide-title').textContent = needsAmount.length > 1 ? '¿Cuánto quieres para cada meta?' : '¿Cuánto quieres ' + (tipos[0]==='deudas'?'pagar':'ahorrar') + '?';
+      document.getElementById('metas-slide-sub').textContent = needsAmount.length > 1 ? 'Escribe el monto de cada meta y cómo distribuir tu ahorro.' : 'Escribe el monto aproximado.';
+      needsAmount.forEach(tipo => {
+        const block = document.createElement('div');
+        block.className = 'meta-input-block';
+        block.innerHTML = '<div class="mi-label">' + METAS_LABELS[tipo] + '</div><div class="mi-wrap"><span class="mi-currency">$</span><input type="number" inputmode="numeric" placeholder="50,000" data-tipo="' + tipo + '" oninput="validateMetas()"><span style="font-size:.78rem;color:var(--text2)">MXN</span></div><div class="mi-hint" id="hint-' + tipo + '">Monto aproximado</div>';
+        list.appendChild(block);
+      });
+      document.getElementById('cta-meta').disabled = true;
+      if (needsAmount.length > 1) {
+        document.getElementById('metas-dist-section').style.display = '';
+        renderDistSliders(needsAmount);
+      } else {
+        document.getElementById('metas-dist-section').style.display = 'none';
+      }
+    }
+    obNext();
+  }
+
+  function renderDistSliders(tipos) {
+    const cont = document.getElementById('metas-sliders');
+    cont.innerHTML = '';
+    const share = Math.floor(100 / tipos.length);
+    tipos.forEach((tipo, i) => {
+      const val = i === tipos.length - 1 ? 100 - share * (tipos.length - 1) : share;
+      const row = document.createElement('div');
+      row.className = 'meta-slider-row';
+      row.innerHTML = '<label>' + METAS_LABELS[tipo] + ' <span id="spct-' + tipo + '">' + val + '%</span></label><input type="range" min="0" max="100" value="' + val + '" data-tipo="' + tipo + '" oninput="onSliderChange(this)">';
+      cont.appendChild(row);
+    });
+    updateDistHint();
+  }
+
+  function onSliderChange(el) {
+    const tipos = answers.metas_tipos.filter(t => t !== 'control');
+    const sliders = document.querySelectorAll('#metas-sliders input[type=range]');
+    let total = 0;
+    sliders.forEach(s => { if (s !== el) total += parseInt(s.value); });
+    const remain = 100 - parseInt(el.value);
+    if (total > remain && sliders.length > 1) {
+      // proportionally reduce others
+      sliders.forEach(s => {
+        if (s !== el) {
+          const newVal = Math.max(0, Math.round(parseInt(s.value) * remain / total));
+          s.value = newVal;
+          const sp = document.getElementById('spct-' + s.dataset.tipo);
+          if (sp) sp.textContent = newVal + '%';
+        }
+      });
+    }
+    document.getElementById('spct-' + el.dataset.tipo).textContent = el.value + '%';
+    updateDistHint();
+  }
+
+  function updateDistHint() {
+    const sliders = document.querySelectorAll('#metas-sliders input[type=range]');
+    let total = 0;
+    sliders.forEach(s => total += parseInt(s.value));
+    const hint = document.getElementById('metas-dist-hint');
+    if (hint) hint.textContent = total === 100 ? '✅ Distribución completa' : 'Total: ' + total + '% (debe sumar 100%)';
+    validateMetas();
+  }
+
+  function validateMetas() {
+    const inputs = document.querySelectorAll('#metas-inputs-list input[type=number]');
+    let allFilled = true;
+    inputs.forEach(inp => {
+      const val = parseFloat(inp.value);
+      const hint = document.getElementById('hint-' + inp.dataset.tipo);
+      if (val > 0) {
+        const ingreso = answers.ingreso || 0;
+        const meses = ingreso > 0 ? Math.ceil(val / (ingreso * 0.15)) : '?';
+        if (hint) { hint.textContent = 'Ahorrando 15%: ~' + meses + ' meses'; hint.style.color = 'var(--accent2)'; }
+      } else {
+        allFilled = false;
+        if (hint) { hint.textContent = 'Monto aproximado'; hint.style.color = 'var(--text2)'; }
+      }
+    });
+    // check distribution sums to 100 if multi
+    let distOk = true;
+    const sliders = document.querySelectorAll('#metas-sliders input[type=range]');
+    if (sliders.length > 1) {
+      let total = 0;
+      sliders.forEach(s => total += parseInt(s.value));
+      distOk = total === 100;
+    }
+    document.getElementById('cta-meta').disabled = !(allFilled && distOk);
+    // build answers.metas
+    if (allFilled) {
+      const pcts = {};
+      sliders.forEach(s => { pcts[s.dataset.tipo] = parseInt(s.value); });
+      answers.metas = [];
+      inputs.forEach(inp => {
+        const tipo = inp.dataset.tipo;
+        const pct = pcts[tipo] !== undefined ? pcts[tipo] : 100;
+        answers.metas.push({tipo, label: METAS_LABELS[tipo], monto: parseFloat(inp.value) || 0, pct});
+      });
+      if (answers.metas_tipos.includes('control') && !answers.metas.find(m => m.tipo === 'control')) {
+        answers.metas.push({tipo:'control',label:'Control gastos',monto:0,pct:0});
+      }
+    }
+  }
+
+  function renderMetasBars() {
+    const list = document.getElementById('metas-list');
+    if (!list) return;
+    list.innerHTML = '';
+    const metas = answers.metas || [];
+    metas.filter(m => m.monto > 0).forEach(m => {
+      const div = document.createElement('div');
+      div.className = 'budget-item';
+      div.id = 'bi-meta-' + m.tipo;
+      div.innerHTML = '<span class="budget-label">' + m.label + '</span><div class="budget-track"><div class="budget-fill green" id="fillMeta-' + m.tipo + '" style="width:0%"></div></div><span class="budget-amount" id="amtMeta-' + m.tipo + '">$0</span>';
+      list.appendChild(div);
+    });
+  }
 </script>
 </body>
 </html>
