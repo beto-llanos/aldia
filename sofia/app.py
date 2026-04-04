@@ -346,9 +346,29 @@ def get_system_prompt(perfil, gastos):
     es_inversor = evaluar_perfil_inversor(perfil, gastos)
     tono_inversor = "\n- Este usuario tiene PERFIL DE INVERSOR. Habla de instrumentos financieros más sofisticados: fondos indexados, CETES directo, GBM+, FIBRAS. Usa lenguaje más técnico pero accesible." if es_inversor else ""
 
+    meta_tipo = perfil.get("meta_tipo", "")
+    _meta_labels = {
+        'ahorro':     'ahorrar para un objetivo específico',
+        'deudas':     'salir de deudas',
+        'emergencia': 'construir fondo de emergencia',
+        'invertir':   'empezar a invertir',
+        'control':    'solo controlar y entender sus gastos (sin meta de ahorro específica)',
+    }
+    meta_tipo_str = _meta_labels.get(meta_tipo, 'no definido')
+    meta_tipo_rule = ""
+    if meta_tipo == 'control':
+        meta_tipo_rule = "\n- OBJETIVO DEL USUARIO: solo quiere controlar gastos, NO tiene meta de ahorro. NO hables de metas de ahorro, inversiones ni plazos a menos que él lo pregunte. Enfócate en ayudarle a entender su gasto."
+    elif meta_tipo == 'deudas':
+        meta_tipo_rule = "\n- OBJETIVO DEL USUARIO: salir de deudas. Prioriza siempre el pago de deudas sobre el ahorro. Sugiere estrategia bola de nieve o avalancha cuando sea relevante."
+    elif meta_tipo == 'emergencia':
+        meta_tipo_rule = "\n- OBJETIVO DEL USUARIO: construir fondo de emergencia (3-6 meses de gastos). Recuérdalo cuando haya margen de ahorro."
+    elif meta_tipo == 'invertir':
+        meta_tipo_rule = "\n- OBJETIVO DEL USUARIO: empezar a invertir. Menciona instrumentos de bajo riesgo (CETES, fondos indexados) cuando haya superávit."
+
     contexto = f"""PERFIL DEL USUARIO{nombre_str}:
 - Ingreso mensual: ${ingreso:,.0f} pesos
 - Meta: ${meta:,.0f} pesos en {plazo} meses
+- Objetivo financiero: {meta_tipo_str}
 - Total gastado este mes: ${total_gastado:,.0f} pesos
 - Disponible real: ${disponible:,.0f} pesos
 - Dia {dia} de {dias_mes} ({dias_restantes} dias restantes)
@@ -363,6 +383,7 @@ def get_system_prompt(perfil, gastos):
     recomendaciones_str = f"\n\nRECOMENDACIONES FINANCIERAS ACTIVAS (menciona 1-2 cuando sea relevante, siempre con Banco Azteca primero):\n{recomendaciones}" if recomendaciones else ""
 
     nombre_directive = f"- El usuario se llama {nombre}. Llámalo por su nombre de vez en cuando (no en cada mensaje, solo cuando sea natural).\n" if nombre else ""
+    meta_tipo_rule_str = meta_tipo_rule if meta_tipo_rule else ""
     return f"""Eres ALD.IA, asistente financiera personal para jovenes mexicanos. Hoy es {fecha}, dia {dia}.
 
 {contexto}{recomendaciones_str}
@@ -387,7 +408,7 @@ REGLAS:
 - Si hay ALERTAS activas, mencionalas con urgencia amigable
 - Si el ritmo de gasto proyecta sobrepasar el ingreso, advertir con tono de aliado
 - Si la meta es imposible con el ritmo actual, decirlo con alternativa concreta
-- Cuando registres un gasto, siempre confirma categoria + disponible restante{tono_inversor}
+- Cuando registres un gasto, siempre confirma categoria + disponible restante{tono_inversor}{meta_tipo_rule_str}
 
 INSTRUCCION CRITICA: Al final de CADA respuesta agrega exactamente esto (con los numeros reales):
 BUDGET_DATA:{{"vivienda_pct":0,"comida_pct":0,"transporte_pct":0,"salud_pct":0,"educacion_pct":0,"ocio_pct":0,"ropa_pct":0,"deudas_pct":0,"ahorro_pct":0,"meta_pct":0,"disponible":{disponible},"ingreso":{ingreso}}}
@@ -630,24 +651,46 @@ def generar_plan():
     ingreso_extra_mes = round(brecha / plazo) if plazo > 0 else 0
     meses_con_ingreso_actual = round(meta / ahorro_mensual) if ahorro_mensual > 0 else 0
 
-    prompt = f"""Eres ALD.IA, asistente financiero empatico para jovenes mexicanos. Se directo y usa los numeros exactos, sin rodeos.
+    meta_tipo = data.get("meta_tipo", "ahorro")
 
-NUMEROS REALES DEL USUARIO (usa exactamente estos, no los cambies):
+    if meta_tipo == "control":
+        prompt = f"""Eres ALD.IA, asistente financiero para jovenes mexicanos. Este usuario SOLO quiere controlar y entender sus gastos, no tiene una meta de ahorro específica.
+
+DATOS DEL USUARIO:
+- Ingreso: ${ingreso:,.0f}/mes
+- Si ahorra algo de lo que le sobra: ${ahorro_mensual:,.0f}/mes es posible (pero no es su prioridad)
+
+INSTRUCCIONES:
+- NO hables de metas de ahorro ni plazos
+- Explica en 2-3 lineas qué puede hacer ALD.IA por él: registrar gastos por voz, ver a dónde va su dinero, recibir alertas antes de pasarse del presupuesto
+- Tono amigable, casual mexicano, máximo 4 lineas, emojis"""
+    else:
+        _goal_context = {
+            'deudas':     f"Su PRIORIDAD es salir de deudas. El ahorro disponible (${ahorro_mensual:,.0f}/mes) debe ir primero a pagar deudas.",
+            'emergencia': f"Su PRIORIDAD es fondo de emergencia. Con ${ahorro_mensual:,.0f}/mes lo logra en {round((ingreso*3)/ahorro_mensual) if ahorro_mensual > 0 else '?'} meses aprox.",
+            'invertir':   f"Su PRIORIDAD es invertir. Con ${ahorro_mensual:,.0f}/mes disponibles puede empezar en CETES o fondos indexados.",
+            'ahorro':     f"Su PRIORIDAD es ahorrar para un objetivo. Meta: ${meta:,.0f} en {plazo} meses.",
+        }.get(meta_tipo, f"Meta: ${meta:,.0f} en {plazo} meses.")
+
+        prompt = f"""Eres ALD.IA, asistente financiero empatico para jovenes mexicanos. Se directo y usa los numeros exactos.
+
+OBJETIVO DEL USUARIO: {meta_tipo} — {_goal_context}
+
+NUMEROS REALES (usa exactamente estos):
 - Ingreso actual: ${ingreso:,.0f}/mes
-- Meta: ${meta:,.0f} en {plazo} meses
-- Puede ahorrar: ${ahorro_mensual:,.0f}/mes ({int(pct_ahorro*100)}% de su ingreso)
-- Total que ahorraria en {plazo} meses: ${ahorro_posible_en_plazo:,.0f}
+- Puede destinar: ${ahorro_mensual:,.0f}/mes ({int(pct_ahorro*100)}% de su ingreso)
+- Total en {plazo} meses: ${ahorro_posible_en_plazo:,.0f}
 - Le faltarian: ${brecha:,.0f}
-- Ingreso EXTRA necesario cada mes para cerrar la brecha: ${ingreso_extra_mes:,.0f}/mes
-- Con ingreso actual solo (sin extra): llegaría en {meses_con_ingreso_actual} meses
-- Meta viable con ingreso actual: {"SI" if es_viable else "NO"}
+- Para cerrar brecha: ${ingreso_extra_mes:,.0f}/mes extra
+- Con ingreso actual: llegaría en {meses_con_ingreso_actual} meses
+- Viable: {"SI" if es_viable else "NO"}
 
-INSTRUCCIONES ESTRICTAS:
-- Usa SIEMPRE los numeros de arriba, jamas inventes otros
-- Si NO es viable: di cuanto ahorraria en el plazo (${ahorro_posible_en_plazo:,.0f}), cuanto le falta (${brecha:,.0f}), y que necesita ${ingreso_extra_mes:,.0f}/mes extra (freelance, trabajo extra, etc.) para llegar exacto a la meta en el plazo
-- Si SI es viable: confirma el plan con entusiasmo
-- Da 1 consejo concreto de como conseguir ese ingreso extra si aplica
-- Maximo 5 lineas, emojis, espanol casual y directo"""
+INSTRUCCIONES:
+- Adapta el mensaje al objetivo ({meta_tipo}), no lo trates como ahorro genérico
+- Si NO es viable: di cuanto lograria, cuanto falta, y cuanto extra necesita
+- Si SI es viable: confirma con entusiasmo
+- 1 consejo concreto relacionado con el objetivo
+- Maximo 5 lineas, emojis, espanol casual"""
 
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
