@@ -1340,5 +1340,9 @@ def ping():
 def health():
     return jsonify({"status": "ok"})
 
+@app.route("/healthz")
+def healthz():
+    return jsonify({"status": "ok"})
+
 if __name__ == "__main__":
     app.run(debug=True)
