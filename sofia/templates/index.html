@@ -2135,12 +2135,12 @@
   function addXP(amount, reason) {
     let xp = getXP() + amount;
     let lv = getLevel();
-    if (xp >= 1000) { xp -= 1000; lv++; localStorage.setItem(_K.lv, lv); triggerPiggyExplosion(); }
+    if (xp >= 1000) { xp -= 1000; lv++; localStorage.setItem(_K.lv, lv); triggerPiggyExplosion(lv); }
     localStorage.setItem(_K.xp, xp);
     renderAllPiggies();
     showXPToast('+' + amount + ' XP ' + (reason || ''));
     const el = document.getElementById('store-xp-val');
-    if (el) el.textContent = xp;
+    if (el) el.textContent = xp + (lv - 1) * 1000;
   }
 
   function showXPToast(msg) {
@@ -2166,7 +2166,8 @@
 
   function piggyHTML(size) {
     const xp    = getXP();
-    const scale = (1.0 + (xp / 1000) * 0.15).toFixed(3);
+    const totalXP = xp + (getLevel() - 1) * 1000;
+    const scale = (1.0 + Math.min(totalXP, 4000) / 8000).toFixed(3);
     const skin  = getSkin();
     const skinData = SKINS_DATA.find(s => s.id === skin) || SKINS_DATA[0];
     const baseColor = skinData.color;
@@ -2294,8 +2295,23 @@
     renderPiggy('store-piggy', 80);
   }
 
-  function triggerPiggyExplosion() {
-    addMessage('aldia', '🎉 ¡Tu cerdito explotó de tanto ahorro! ¡Subiste de nivel! 🐷💥✨\n\nSigue así — tu siguiente cerdito ya está creciendo.');
+  function triggerPiggyExplosion(newLevel) {
+    const lv = newLevel || getLevel();
+    // Unlock a skin per level milestone
+    const levelSkins = { 2:'blue', 3:'green', 4:'gold', 5:'crystal', 6:'rainbow' };
+    const skinId = levelSkins[lv];
+    let unlockMsg = '';
+    if (skinId) {
+      const owned = getOwned();
+      const key = 'skin_' + skinId;
+      if (!owned.includes(key)) {
+        owned.push(key);
+        localStorage.setItem(_K.owned, JSON.stringify(owned));
+        const skinName = SKINS_DATA.find(s => s.id === skinId)?.name || skinId;
+        unlockMsg = `\n\n🎁 ¡Desbloqueaste la skin **${skinName}**! Ve a Tienda → Cerdito para equiparla.`;
+      }
+    }
+    addMessage('aldia', `🎉 ¡Tu cerdito subió al nivel ${lv}! 🐷💥✨\n\nSigue así — tu cerdito ya está creciendo.${unlockMsg}`);
     for (let i = 0; i < 14; i++) {
       const c = document.createElement('div');
       const colors = ['#f472b6','#fbbf24','#4ade80','#60a5fa','#a78bfa','#fb923c'];
