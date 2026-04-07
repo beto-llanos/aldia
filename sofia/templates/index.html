@@ -795,6 +795,7 @@
       <div id="bi-ocio"><div id="fillOcio"></div><span id="amtOcio"></span></div>
       <div id="bi-ropa"><div id="fillRopa"></div><span id="amtRopa"></span></div>
       <div id="bi-deudas"><div id="fillDeudas"></div><span id="amtDeudas"></span></div>
+      <div id="bi-imprevistos"><div id="fillImprevistos"></div><span id="amtImprevistos"></span></div>
       <div><div id="fillAhorro"></div><span id="amtAhorro"></span></div>
       <div id="metas-list"></div><div id="fillMeta"></div><span id="amtMeta"></span>
       <span id="tip-text"></span><div id="fillRitmo"></div><span id="lblRitmo"></span>
@@ -1556,11 +1557,13 @@
     if (ingresoRef === 0 && b.ingreso > 0) ingresoRef = b.ingreso;
     updateRitmo(b);
     renderSidebarBudget();
+    renderDonutChart();
+    renderDailyBars();
     const active = getActiveCats();
-    ['vivienda','comida','transporte','salud','educacion','ocio','ropa','deudas'].forEach(cat => {
+    ['vivienda','comida','transporte','salud','educacion','ocio','ropa','deudas','imprevistos'].forEach(cat => {
       const fill = document.getElementById('fill' + cap(cat));
       const amt  = document.getElementById('amt' + cap(cat));
-      if (!fill || !amt || !active.includes(cat)) return;
+      if (!fill || !amt || (!active.includes(cat) && cat !== 'imprevistos')) return;
       const pct = b[cat + '_pct'] || 0;
       const limite = ingresoRef * (LIMITES_BASE[cat] || 0.05);
       const gastado = Math.round(ingresoRef * pct / 100);
@@ -2724,9 +2727,9 @@
     const b = _lastBudget;
     if (!b || !ingresoRef) { el.innerHTML = '<div style="color:var(--text2);font-size:.78rem;text-align:center;padding:16px">Registra gastos para ver</div>'; return; }
     const active = getActiveCats();
-    const items = ['vivienda','comida','transporte','salud','educacion','ocio','ropa','deudas']
-      .filter(c => active.includes(c) && (b[c+'_pct']||0) > 0)
-      .map(c => ({label:c.charAt(0).toUpperCase()+c.slice(1), value:b[c+'_pct']||0, color:CAT_COLORS[c]}));
+    const items = ['vivienda','comida','transporte','salud','educacion','ocio','ropa','deudas','imprevistos']
+      .filter(c => (active.includes(c) || c === 'imprevistos') && (b[c+'_pct']||0) > 0)
+      .map(c => ({label:c.charAt(0).toUpperCase()+c.slice(1), value:b[c+'_pct']||0, color:CAT_COLORS[c]||'#94a3b8'}));
     if ((b.ahorro_pct||0)>0) items.push({label:'Ahorro',value:b.ahorro_pct,color:CAT_COLORS.ahorro});
     const total = items.reduce((s,i)=>s+i.value,0);
     if (total === 0) { el.innerHTML = '<div style="color:var(--text2);font-size:.78rem;text-align:center;padding:16px">Sin gastos registrados aún</div>'; return; }
@@ -2803,7 +2806,7 @@
     if (!_lastBudget || !ingresoRef) return;
     const b = _lastBudget;
     const active = getActiveCats();
-    const cats = ['vivienda','comida','transporte','salud','educacion','ocio','ropa','deudas'].filter(c=>active.includes(c));
+    const cats = ['vivienda','comida','transporte','salud','educacion','ocio','ropa','deudas','imprevistos'].filter(c=>active.includes(c)||(c==='imprevistos'&&(b['imprevistos_pct']||0)>0));
     const vizEl = document.getElementById('sb-budget-viz');
     const titleEl = document.getElementById('sb-budget-title');
     const tipBox = document.getElementById('sb-tip-box');

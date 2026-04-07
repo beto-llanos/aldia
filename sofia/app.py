@@ -475,6 +475,7 @@ def calculate_budget_data(perfil, gastos):
         "transporte_pct": pct("transporte"), "salud_pct": pct("salud"),
         "educacion_pct": pct("educacion"), "ocio_pct": pct("ocio"),
         "ropa_pct": pct("ropa"), "deudas_pct": pct("deudas"),
+        "imprevistos_pct": pct("imprevistos"),
         "ahorro_pct": ahorro_pct, "meta_pct": min(meta_pct, 100),
         "disponible": round(disponible),
         "ingreso": ingreso if ingreso > 0 else perfil.get("ingreso", 0),
