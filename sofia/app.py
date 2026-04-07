@@ -392,13 +392,17 @@ def get_system_prompt(perfil, gastos):
 - ALERTAS: {alertas if alertas else 'ninguna'}
 - Perfil inversor: {'SÍ' if es_inversor else 'no'}""" if ingreso > 0 else "El usuario aun no ha dado su perfil."
 
+
+    pending = perfil.get("pending_gasto")
+    _pamount = str(int(pending["amount"])) if pending else ""
+    pending_str = ("\n\nGASTO PENDIENTE DE CLASIFICAR: El usuario menciono un gasto de $" + _pamount + " pesos sin decir en que. Ya fue detectado pero NO guardado aun. Preguntale con curiosidad de amigo en que lo gasto, una sola pregunta corta y natural, sin listar categorias. Cuando responda el sistema lo clasificara solo.") if pending else ""
     recomendaciones_str = f"\n\nRECOMENDACIONES FINANCIERAS ACTIVAS (menciona 1-2 cuando sea relevante, siempre con Banco Azteca primero):\n{recomendaciones}" if recomendaciones else ""
 
-    nombre_directive = f"- El usuario se llama {nombre}. Llámalo por su nombre de vez en cuando (no en cada mensaje, solo cuando sea natural).\n" if nombre else ""
+    nombre_directive = f"- El usuario se llama {nombre}. Llamalo por su nombre de vez en cuando (no en cada mensaje, solo cuando sea natural).\n" if nombre else ""
     meta_tipo_rule_str = meta_tipo_rule if meta_tipo_rule else ""
     return f"""Eres ALD.IA, asistente financiera personal para jovenes mexicanos. Hoy es {fecha}, dia {dia}.
 
-{contexto}{recomendaciones_str}
+{contexto}{recomendaciones_str}{pending_str}
 
 CATEGORIAS: vivienda, comida, transporte, salud, educacion, ocio, ropa, deudas, ahorro, imprevistos.
 
@@ -423,7 +427,7 @@ REGLAS:
 - Cuando registres un gasto, siempre confirma categoria + disponible restante{tono_inversor}{meta_tipo_rule_str}
 
 INSTRUCCION CRITICA: Al final de CADA respuesta agrega exactamente esto (con los numeros reales):
-BUDGET_DATA:{{"vivienda_pct":0,"comida_pct":0,"transporte_pct":0,"salud_pct":0,"educacion_pct":0,"ocio_pct":0,"ropa_pct":0,"deudas_pct":0,"ahorro_pct":0,"meta_pct":0,"disponible":{disponible},"ingreso":{ingreso}}}
+BUDGET_DATA:{"vivienda_pct":0,"comida_pct":0,"transporte_pct":0,"salud_pct":0,"educacion_pct":0,"ocio_pct":0,"ropa_pct":0,"deudas_pct":0,"ahorro_pct":0,"meta_pct":0,"disponible":{disponible},"ingreso":{ingreso}}
 
 Rellena los _pct con (gasto_categoria / ingreso * 100). disponible e ingreso son fijos del perfil."""
 
@@ -572,16 +576,29 @@ def chat():
             gastos[cat] = gastos.get(cat, 0) + amount
             new_gastos.append((cat, amount, nombre))
         else:
+            # Resolve pending gasto from previous message
+            if perfil.get("pending_gasto"):
+                pamt = perfil["pending_gasto"]["amount"]
+                cat = classify_gasto(user_message)
+                if cat != "imprevistos":
+                    gastos[cat] = gastos.get(cat, 0) + pamt
+                    new_gastos.append((cat, pamt, user_message.strip()))
+                    perfil.pop("pending_gasto", None)
+                # if still unrecognized keep pending — AI will ask again
             for match in GASTO_PATTERN.finditer(user_message):
-                amount_str = match.group(1).replace(',', '')
+                amount_str = match.group(1).replace(",", "")
                 try:
                     amount = float(amount_str)
                 except:
                     continue
                 desc = match.group(2) or ""
-                cat = classify_gasto(desc)
-                gastos[cat] = gastos.get(cat, 0) + amount
-                new_gastos.append((cat, amount, desc))
+                if not desc.strip():
+                    # No context given — ask the user instead of guessing imprevistos
+                    perfil["pending_gasto"] = {"amount": amount}
+                else:
+                    cat = classify_gasto(desc)
+                    gastos[cat] = gastos.get(cat, 0) + amount
+                    new_gastos.append((cat, amount, desc))
 
     # Evaluar y persistir perfil inversor si cambió
     es_inversor_ahora = evaluar_perfil_inversor(perfil, gastos)
