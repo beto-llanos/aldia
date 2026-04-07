@@ -507,6 +507,11 @@
     .ob-currency{font-size:1.6rem;font-weight:700;color:var(--text2);}
     .ob-amount-input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:1.6rem;font-weight:700;font-family:inherit;min-width:0;}
     .ob-amount-hint{font-size:.8rem;color:var(--text2);margin-top:8px;margin-bottom:18px;min-height:16px;}
+    .ob-plazo-select{width:100%;max-width:380px;padding:12px 16px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-size:1rem;font-family:inherit;cursor:pointer;outline:none;color-scheme:dark;appearance:auto;}
+    .ob-plazo-select:focus{border-color:var(--accent);}
+    .ob-plazo-select option{background:var(--surface2);color:var(--text);}
+    body.theme-light .ob-plazo-select{background:#fff;color:#111;color-scheme:light;border-color:rgba(0,0,0,.2);}
+    body.theme-light .ob-plazo-select option{background:#fff;color:#111;}
     .ob-options{display:flex;flex-direction:column;gap:10px;width:100%;max-width:380px;margin-bottom:18px;}
     .ob-option{display:flex;align-items:center;gap:14px;padding:14px 16px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);border-radius:14px;cursor:pointer;transition:.15s;text-align:left;}
     .ob-option:hover{border-color:var(--accent);background:rgba(59,130,246,.08);}
@@ -706,7 +711,7 @@
           <input type="number" class="ob-amount-input" id="input-meta" placeholder="50,000" inputmode="numeric" oninput="validateMetaExtra()">
           <span style="font-size:13px;color:var(--text2);flex-shrink:0">MXN</span>
         </div>
-        <select id="input-plazo" class="ob-amount-input" style="font-size:1rem;padding:10px 14px;max-width:380px;width:100%;cursor:pointer">
+        <select id="input-plazo" class="ob-plazo-select">
           <option value="3">3 meses</option>
           <option value="6">6 meses</option>
           <option value="12" selected>12 meses</option>
