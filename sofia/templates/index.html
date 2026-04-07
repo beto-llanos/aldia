@@ -69,7 +69,7 @@
     .sb-user-mode{font-size:.65rem;color:var(--accent);font-weight:600;margin-top:1px;}
     .sb-section-lbl{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);padding:10px 14px 4px;opacity:.8;}
     .sb-stats-card{margin:0 10px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
-    .sb-piggy-card{margin:8px 10px 4px;padding:10px 4px 4px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;display:flex;justify-content:center;min-height:110px;align-items:center;}
+    .sb-piggy-card{margin:8px 10px 4px;padding:10px 8px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;display:flex;justify-content:center;min-height:90px;align-items:center;}
     .sb-mode-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);border-radius:20px;color:var(--accent);font-size:.62rem;font-weight:600;cursor:pointer;transition:.15s;margin-top:3px;}
     .sb-mode-pill:hover{background:rgba(59,130,246,.22);}
     .sb-nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;transition:.15s;border-radius:0;color:var(--text2);font-size:.85rem;}
@@ -1440,7 +1440,7 @@
     if (nm) nm.textContent = name;
     if (ml) ml.textContent = _mode === 'business' ? 'Negocio' : 'Personal';
     if (mi) mi.textContent = _mode === 'business' ? '🏢' : '👤';
-    if (xpB) xpB.innerHTML = xpIcon(12) + ' ' + getXP();
+    if (xpB) xpB.innerHTML = xpIcon(20) + ' ' + getXP();
     if (dia) { const h=new Date().getDate(),dm=new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate(); dia.textContent=h+'/'+dm; }
     updateSidebarXP();
   }
@@ -2382,8 +2382,8 @@
   );
   const getXP      = () => parseInt(localStorage.getItem(_K.xp)   || '0');
   const getLevel   = () => parseInt(localStorage.getItem(_K.lv)   || '1');
-  function xpIcon(size = 22) {
-    const w = Math.round(size * 0.75); // 768×1024 aspect ratio
+  function xpIcon(size = 28) {
+    const w = Math.round(size * 0.49); // 375×763 cropped aspect ratio (tall icon)
     return `<img src="/static/aldiaxp-icon.png" width="${w}" height="${size}" style="display:inline-block;vertical-align:middle;flex-shrink:0;object-fit:contain">`;
   }
   const getSkin    = () => localStorage.getItem(_K.skin)  || 'pink';
@@ -2398,10 +2398,10 @@
     const val = document.getElementById('sb-xp-val');
     const fill = document.getElementById('sb-xp-fill');
     const badge = document.getElementById('sb-xp-badge');
-    if (lbl) lbl.innerHTML = xpIcon(12) + ' XP · Nv.' + lv;
+    if (lbl) lbl.innerHTML = xpIcon(20) + ' XP · Nv.' + lv;
     if (val) val.textContent = xp + ' / 1000';
     if (fill) fill.style.width = (xp / 10) + '%';
-    if (badge) badge.innerHTML = xpIcon(12) + ' ' + xp;
+    if (badge) badge.innerHTML = xpIcon(20) + ' ' + xp;
   }
 
   function addXP(amount, reason) {
@@ -2411,7 +2411,7 @@
     localStorage.setItem(_K.xp, xp);
     renderAllPiggies();
     updateSidebarXP();
-    showXPToast(xpIcon(14) + ' +' + amount + ' XP ' + (reason || ''));
+    showXPToast(xpIcon(22) + ' +' + amount + ' XP ' + (reason || ''));
     const el = document.getElementById('store-xp-val');
     if (el) el.textContent = xp + (lv - 1) * 1000;
   }
@@ -2458,7 +2458,7 @@
     const variant = metaPct >= 100 ? 'lleno' : 'vacio';
     const imgSrc = `/static/${base}-${variant}.png`;
 
-    const h = Math.round(size * 1.33); // 768×1024 aspect ratio (portrait)
+    const h = Math.round(size * 0.66); // ~1.52:1 landscape ratio after tight crop
     return `<img src="${imgSrc}" class="piggy-svg" width="${size}" height="${h}" style="object-fit:contain;display:block">`;
 
     /* SVG removed */ if (false) { const _l = 0;
@@ -2569,14 +2569,14 @@
     const xp = getXP(), lv = getLevel();
     el.innerHTML = piggyHTML(size)
       + (showXP ? `<div class="piggy-xp-bar" style="max-width:${size}px"><div class="piggy-xp-fill" style="width:${xp/10}%"></div></div>`
-                + `<div class="piggy-info"><div class="piggy-xp-text">${xpIcon(11)} ${xp}/1000 XP</div><div class="piggy-level-text">Nivel ${lv}</div></div>` : '');
+                + `<div class="piggy-info"><div class="piggy-xp-text">${xpIcon(18)} ${xp}/1000 XP</div><div class="piggy-level-text">Nivel ${lv}</div></div>` : '');
   }
 
   function renderAllPiggies() {
-    renderPiggy('sidebar-piggy', 58);
-    renderPiggy('panel-piggy', 90);
-    renderPiggy('learn-piggy', 58);
-    renderPiggy('store-piggy', 80, false);
+    renderPiggy('sidebar-piggy', 110);
+    renderPiggy('panel-piggy', 140);
+    renderPiggy('learn-piggy', 110);
+    renderPiggy('store-piggy', 120, false);
   }
 
   function triggerPiggyExplosion(newLevel) {
@@ -2642,7 +2642,7 @@
   // DASHBOARD PANEL
   // ════════════════════════════════════════════════════════════
   function loadPanelData() {
-    renderPiggy('panel-piggy', 90);
+    renderPiggy('panel-piggy', 140);
     const nivel = document.getElementById('score-nivel');
     const pNivel = document.getElementById('p-nivel');
     if (nivel && pNivel) pNivel.textContent = nivel.textContent;
@@ -2965,7 +2965,7 @@
                   <div class="path-card ${isDone?'completed':''}">
                     <div class="path-card-top">
                       <div class="path-card-title">${l.icon} ${l.title}</div>
-                      <div class="path-card-xp">${l.xp}+ ${xpIcon(15)}</div>
+                      <div class="path-card-xp">${l.xp}+ ${xpIcon(22)}</div>
                     </div>
                     <div class="path-divider"></div>
                     <div class="path-card-meta">
@@ -3028,7 +3028,7 @@
       content.innerHTML = `<div class="quiz-result">
         <div class="quiz-result-icon">${pct>=70?'🏆':'💪'}</div>
         <div style="font-size:1rem;font-weight:800">${pct}% correcto</div>
-        ${!alreadyDone ? '<div class="quiz-result-xp">'+xpIcon(20)+' +'+_curLesson.xp+' XP ganados!</div>'
+        ${!alreadyDone ? '<div class="quiz-result-xp">'+xpIcon(28)+' +'+_curLesson.xp+' XP ganados!</div>'
           : '<div style="font-size:.75rem;color:var(--text2)">Ya completaste esta lección</div>'}
         <button class="ob-cta" style="max-width:100%;margin-top:10px" onclick="exitQuiz()">← Volver a lecciones</button>
       </div>`;
@@ -3067,19 +3067,19 @@
   function getTotalXP() { return getXP() + (getLevel()-1)*1000; }
 
   function renderStorePanel() {
-    renderPiggy('store-piggy', 80, false);
+    renderPiggy('store-piggy', 120, false);
     const total = getTotalXP(), cur = getXP(), lv = getLevel();
     const xpEl = document.getElementById('store-xp-val');
     if (xpEl) xpEl.textContent = total;
     const xpHeader = document.getElementById('store-xp-header');
-    if (xpHeader) xpHeader.innerHTML = `${xpIcon(20)} <span id="store-xp-val" style="margin-left:4px">${total}</span> XP acumulados`;
+    if (xpHeader) xpHeader.innerHTML = `${xpIcon(28)} <span id="store-xp-val" style="margin-left:4px">${total}</span> XP acumulados`;
     const lvEl = document.getElementById('xp-lv-display');
     const curEl = document.getElementById('xp-cur-display');
     const fillEl = document.getElementById('xp-level-fill');
     if (lvEl) lvEl.textContent = lv;
-    if (curEl) curEl.innerHTML = xpIcon(13) + ' ' + cur;
+    if (curEl) curEl.innerHTML = xpIcon(20) + ' ' + cur;
     const xpLvCount = document.getElementById('xp-level-count-el');
-    if (xpLvCount) xpLvCount.innerHTML = xpIcon(13) + ' ' + cur + ' / 1000 XP';
+    if (xpLvCount) xpLvCount.innerHTML = xpIcon(20) + ' ' + cur + ' / 1000 XP';
     if (fillEl) fillEl.style.width = (cur / 10) + '%';
     const owned = getOwned(), curTheme = getTheme(), curSkin = getSkin();
 
