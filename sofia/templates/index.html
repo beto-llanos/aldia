@@ -1555,6 +1555,14 @@
     _lastBudget = b;
     if (b.ingreso > 0) ingresoRef = b.ingreso;
     if (ingresoRef === 0 && b.ingreso > 0) ingresoRef = b.ingreso;
+    // Update business panel if extra income arrived
+    if ((b.ingreso_extra || 0) > 0) {
+      const biz = JSON.parse(localStorage.getItem('al_biz') || '{}');
+      biz.ingresos = (biz.ingresos || 0) + (b.ingreso_extra - (_lastBizExtra || 0));
+      _lastBizExtra = b.ingreso_extra;
+      localStorage.setItem('al_biz', JSON.stringify(biz));
+      if (_mode === 'business') renderBizPanel();
+    }
     updateRitmo(b);
     renderSidebarBudget();
     renderDonutChart();
@@ -2206,6 +2214,7 @@
   // TAB ROUTING
   // ════════════════════════════════════════════════════════════
   let _mode = localStorage.getItem('al_mode') || 'personal'; // 'personal' | 'business'
+  let _lastBizExtra = 0;
 
   function setMode(mode) {
     _mode = mode;

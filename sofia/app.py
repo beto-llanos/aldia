@@ -322,17 +322,19 @@ def get_system_prompt(perfil, gastos):
     nombre = perfil.get("nombre", "")
     nombre_str = f" ({nombre})" if nombre else ""
     ingreso = perfil.get("ingreso", 0)
+    ingreso_extra = perfil.get("ingreso_extra_mes", 0)
+    ingreso_total = ingreso + ingreso_extra
     meta = perfil.get("meta", 0)
     plazo = perfil.get("plazo_meses", 12)
     gastos_fijos_mensuales = perfil.get("gastos_fijos_mensuales", perfil.get("gastos_fijos_inicio", 0))
     total_gastado = sum(gastos.values()) + gastos_fijos_mensuales
-    disponible = max(0, ingreso - total_gastado)
+    disponible = max(0, ingreso_total - total_gastado)
 
     # Velocidad de gasto y proyeccion mensual
     tasa_diaria = total_gastado / dia if dia > 0 else 0
     proyeccion_fin_mes = round(tasa_diaria * dias_mes)
-    superavit_proyectado = ingreso - proyeccion_fin_mes
-    en_buen_ritmo = proyeccion_fin_mes <= ingreso
+    superavit_proyectado = ingreso_total - proyeccion_fin_mes
+    en_buen_ritmo = proyeccion_fin_mes <= ingreso_total
 
     # Cat mas usada
     porcentajes_activos = calcular_porcentajes_activos(perfil)
@@ -373,8 +375,10 @@ def get_system_prompt(perfil, gastos):
     elif meta_tipo == 'invertir':
         meta_tipo_rule = "\n- OBJETIVO DEL USUARIO: empezar a invertir. Menciona instrumentos de bajo riesgo (CETES, fondos indexados) cuando haya superávit."
 
+    ingreso_extra_str = f"\n- Ingresos extra este mes (ventas/negocio): ${ingreso_extra:,.0f} pesos" if ingreso_extra > 0 else ""
     contexto = f"""PERFIL DEL USUARIO{nombre_str}:
-- Ingreso mensual: ${ingreso:,.0f} pesos
+- Ingreso mensual base: ${ingreso:,.0f} pesos{ingreso_extra_str}
+- Ingreso total disponible este mes: ${ingreso_total:,.0f} pesos
 - Meta: ${meta:,.0f} pesos en {plazo} meses
 - Objetivo financiero: {meta_tipo_str}
 {f"- Gastos fijos recurrentes mensuales (renta, servicios, etc.): ${gastos_fijos_mensuales:,.0f} pesos — se descuentan AUTOMÁTICAMENTE cada mes del disponible, NO los menciones como gasto nuevo ni generes ninguna alerta por ellos" if gastos_fijos_mensuales > 0 else ""}- Total gastado este mes (incluyendo fijos): ${total_gastado:,.0f} pesos
@@ -429,6 +433,27 @@ def extract_ingreso(line):
         return float(match.group(1).replace(',', ''))
     return None
 
+_ONE_TIME_INCOME_WORDS = [
+    'vendí','vendi','vendiendo','en vender','de vender','por vender',
+    'del negocio','de mi negocio','de negocio','de ventas','por ventas',
+    'de un proyecto','de trabajo extra','de freelance','de un cliente',
+    'de la venta','sudader','playera','ropa','producto','servicio',
+    'en el negocio','invertí','invert',
+]
+_RECURRING_INCOME_WORDS = [
+    'sueldo','salario','quincena','mensualidad','nómina','nomina',
+    'mi ingreso mensual','ingreso fijo','al mes','por mes','mensual',
+    'me pagaron mi','cobré mi sueldo','cobré mi quincena',
+]
+
+def _classify_income(msg):
+    """Return 'recurring', 'extra', or 'extra' (default to safe)."""
+    if any(w in msg for w in _ONE_TIME_INCOME_WORDS):
+        return 'extra'
+    if any(w in msg for w in _RECURRING_INCOME_WORDS):
+        return 'recurring'
+    return 'extra'  # ambiguous → treat as extra to avoid overwriting monthly income
+
 def update_perfil_from_message(user_message, perfil):
     msg = user_message.lower()
 
@@ -437,7 +462,11 @@ def update_perfil_from_message(user_message, perfil):
     if ingreso_match:
         n = float(ingreso_match.group(1).replace(',', ''))
         if n > 0:
-            perfil["ingreso"] = n
+            if _classify_income(msg) == 'recurring':
+                perfil["ingreso"] = n
+            else:
+                # Ingreso extra (venta, negocio, etc.) — acumular sin pisar el salario mensual
+                perfil["ingreso_extra_mes"] = perfil.get("ingreso_extra_mes", 0) + n
     else:
         for line in msg.split('\n'):
             if any(w in line for w in ['gano','gana','ingreso','salario','sueldo','recibo','quincena','mensualidad']):
@@ -456,18 +485,20 @@ def update_perfil_from_message(user_message, perfil):
 
 def calculate_budget_data(perfil, gastos):
     ingreso = perfil.get("ingreso", 0)
+    ingreso_extra = perfil.get("ingreso_extra_mes", 0)
+    ingreso_total = ingreso + ingreso_extra
     meta = perfil.get("meta", 0)
     if ingreso == 0:
         return None
     gastos_fijos = perfil.get("gastos_fijos_mensuales", perfil.get("gastos_fijos_inicio", 0))
     total_gastado = sum(gastos.values()) + gastos_fijos
-    disponible = max(0, ingreso - total_gastado)
+    disponible = max(0, ingreso_total - total_gastado)
 
     def pct(cat):
-        return round((gastos.get(cat, 0) / ingreso) * 100, 1)
+        return round((gastos.get(cat, 0) / ingreso_total) * 100, 1) if ingreso_total > 0 else 0
 
     ahorro_real = gastos.get("ahorro", 0)
-    ahorro_pct = round((ahorro_real / ingreso) * 100, 1)
+    ahorro_pct = round((ahorro_real / ingreso_total) * 100, 1) if ingreso_total > 0 else 0
     meta_pct = round((ahorro_real / meta) * 100, 1) if meta > 0 else 0
 
     return {
@@ -478,7 +509,8 @@ def calculate_budget_data(perfil, gastos):
         "imprevistos_pct": pct("imprevistos"),
         "ahorro_pct": ahorro_pct, "meta_pct": min(meta_pct, 100),
         "disponible": round(disponible),
-        "ingreso": ingreso if ingreso > 0 else perfil.get("ingreso", 0),
+        "ingreso": ingreso_total,
+        "ingreso_base": ingreso, "ingreso_extra": round(ingreso_extra),
         "gastos_fijos": round(gastos_fijos)
     }
 
@@ -889,6 +921,10 @@ def reset_data():
     try:
         sb.table("mensajes").delete().eq("session_id", session_id).execute()
         sb.table("gastos").delete().eq("session_id", session_id).execute()
+        # Reset monthly extra income accumulator
+        perfil = load_perfil(session_id)
+        perfil["ingreso_extra_mes"] = 0
+        save_perfil(perfil)
     except Exception as e:
         print(f"Error resetting data: {e}")
     return jsonify({"status": "ok"})
