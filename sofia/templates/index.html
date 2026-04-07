@@ -507,11 +507,10 @@
     .ob-currency{font-size:1.6rem;font-weight:700;color:var(--text2);}
     .ob-amount-input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:1.6rem;font-weight:700;font-family:inherit;min-width:0;}
     .ob-amount-hint{font-size:.8rem;color:var(--text2);margin-top:8px;margin-bottom:18px;min-height:16px;}
-    .ob-plazo-select{width:100%;max-width:380px;padding:12px 16px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-size:1rem;font-family:inherit;cursor:pointer;outline:none;color-scheme:dark;appearance:auto;}
-    .ob-plazo-select:focus{border-color:var(--accent);}
-    .ob-plazo-select option{background:var(--surface2);color:var(--text);}
-    body.theme-light .ob-plazo-select{background:#fff;color:#111;color-scheme:light;border-color:rgba(0,0,0,.2);}
-    body.theme-light .ob-plazo-select option{background:#fff;color:#111;}
+    .plazo-picker{display:flex;flex-wrap:wrap;gap:8px;width:100%;max-width:380px;margin-bottom:4px;}
+    .plazo-option{flex:1;min-width:80px;padding:10px 8px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text2);font-size:.85rem;font-weight:600;text-align:center;cursor:pointer;transition:.15s;}
+    .plazo-option:hover{border-color:var(--accent);color:var(--text);}
+    .plazo-option.active{border-color:var(--accent);background:rgba(59,130,246,.18);color:var(--text);}
     .ob-options{display:flex;flex-direction:column;gap:10px;width:100%;max-width:380px;margin-bottom:18px;}
     .ob-option{display:flex;align-items:center;gap:14px;padding:14px 16px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);border-radius:14px;cursor:pointer;transition:.15s;text-align:left;}
     .ob-option:hover{border-color:var(--accent);background:rgba(59,130,246,.08);}
@@ -711,7 +710,8 @@
           <input type="number" class="ob-amount-input" id="input-meta" placeholder="50,000" inputmode="numeric" oninput="validateMetaExtra()">
           <span style="font-size:13px;color:var(--text2);flex-shrink:0">MXN</span>
         </div>
-        <select id="input-plazo" class="ob-plazo-select">
+        <!-- Custom plazo dropdown (native select hidden for value binding only) -->
+        <select id="input-plazo" style="display:none">
           <option value="3">3 meses</option>
           <option value="6">6 meses</option>
           <option value="12" selected>12 meses</option>
@@ -719,6 +719,14 @@
           <option value="24">2 años</option>
           <option value="36">3 años</option>
         </select>
+        <div class="plazo-picker" id="plazo-picker">
+          <div class="plazo-option" data-val="3" onclick="setPlazo(3,this)">3 meses</div>
+          <div class="plazo-option" data-val="6" onclick="setPlazo(6,this)">6 meses</div>
+          <div class="plazo-option active" data-val="12" onclick="setPlazo(12,this)">12 meses</div>
+          <div class="plazo-option" data-val="18" onclick="setPlazo(18,this)">18 meses</div>
+          <div class="plazo-option" data-val="24" onclick="setPlazo(24,this)">2 años</div>
+          <div class="plazo-option" data-val="36" onclick="setPlazo(36,this)">3 años</div>
+        </div>
         <div class="ob-amount-hint" style="margin-top:6px" id="meta-hint">Ingresa el monto para continuar</div>
       </div>
       <button class="ob-cta" id="cta-meta_tipo" onclick="obNext()" disabled>Listo, crear mi plan →</button>
@@ -1268,6 +1276,16 @@
       hintText = `≈ $${mensual.toLocaleString('es-MX')}/mes durante ${plazo} meses`;
     if (hint) hint.textContent = hintText;
     if (cta) cta.disabled = false;
+  }
+
+  function setPlazo(val, el) {
+    // Update hidden select value
+    const sel = document.getElementById('input-plazo');
+    if (sel) sel.value = val;
+    // Update pill active state
+    document.querySelectorAll('.plazo-option').forEach(o => o.classList.toggle('active', o.dataset.val == val));
+    // Re-run validation to update hint
+    validateMetaExtra();
   }
 
   function validateNombre() {
