@@ -623,12 +623,23 @@ def chat():
     messages.append({"role": "user", "content": user_message})
     save_mensaje(session_id, "user", user_message)
 
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[{"role": "system", "content": get_system_prompt(perfil, gastos)}] + messages[-14:],
-        temperature=0.7,
-        max_tokens=400
-    )
+    groq_models = ["llama-3.3-70b-versatile", "llama3-70b-8192", "llama3-8b-8192"]
+    response = None
+    last_err = None
+    for model_id in groq_models:
+        try:
+            response = client.chat.completions.create(
+                model=model_id,
+                messages=[{"role": "system", "content": get_system_prompt(perfil, gastos)}] + messages[-10:],
+                temperature=0.7,
+                max_tokens=300
+            )
+            break
+        except Exception as e:
+            print(f"Groq model {model_id} failed: {e}")
+            last_err = e
+    if response is None:
+        return jsonify({"error": f"El servicio de IA no está disponible. Intenta en un momento."}), 200
 
     full_response = response.choices[0].message.content
     clean_response = full_response

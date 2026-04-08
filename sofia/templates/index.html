@@ -1796,7 +1796,13 @@
         method: 'POST', headers: {'Content-Type':'application/json'},
         body: JSON.stringify({message: text})
       });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+      if (!res.ok) {
+        let errMsg = 'Error ' + res.status;
+        try { const ed = await res.json(); if (ed.error) errMsg = ed.error; } catch {}
+        hideTyping();
+        addMessage('aldia', '⚠️ ' + errMsg + ' — intenta de nuevo.');
+        sendBtn.disabled = false; inputEl.focus(); return;
+      }
       const data = await res.json();
       hideTyping();
       if (data.error) { addMessage('aldia', '⚠️ ' + data.error); }
@@ -1806,7 +1812,7 @@
       }
     } catch(e) {
       hideTyping();
-      addMessage('aldia', '❌ Error de conexión. Intenta de nuevo.');
+      addMessage('aldia', '❌ Sin conexión — revisa tu internet e intenta de nuevo.');
     }
     sendBtn.disabled = false;
     inputEl.focus();
