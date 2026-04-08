@@ -397,6 +397,23 @@
     .piggy-bounce .piggy-svg{animation:piggyBounce .4s ease;}
     /* ── Learn/Games panel ── */
     .learn-panel,.store-panel{display:none;flex:1;overflow-y:auto;padding:16px 14px;flex-direction:column;gap:12px;}
+    .catalog-panel{display:none;flex:1;overflow-y:auto;padding:16px 14px;flex-direction:column;gap:0;}
+    .cat-header{padding:0 0 10px;}
+    .cat-header h2{font-size:1.05rem;font-weight:700;margin:0 0 2px;}
+    .cat-header p{font-size:.76rem;color:var(--text2);margin:0;}
+    .cat-info-bar{font-size:.76rem;color:var(--text2);margin-bottom:12px;padding:8px 12px;background:rgba(59,130,246,.08);border-radius:8px;border:1px solid rgba(59,130,246,.15);line-height:1.5;}
+    .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-bottom:16px;}
+    .cat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:.15s;}
+    .cat-img-wrap{aspect-ratio:4/3;background:var(--surface2);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+    .cat-img{width:100%;height:100%;object-fit:cover;}
+    .cat-img-fallback{font-size:2.4rem;}
+    .cat-body{padding:9px 10px;}
+    .cat-badge{display:inline-block;font-size:.58rem;font-weight:700;padding:2px 6px;border-radius:5px;background:rgba(16,185,129,.15);color:var(--green);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;}
+    .cat-name{font-size:.78rem;font-weight:700;margin:0 0 3px;line-height:1.3;}
+    .cat-price{font-size:.92rem;font-weight:700;color:var(--accent);margin:0 0 5px;}
+    .cat-months{font-size:.7rem;color:var(--text2);display:flex;align-items:center;gap:3px;}
+    .cat-msi{font-size:.67rem;color:var(--text2);margin-top:2px;opacity:.8;}
+    .ob-sim-badge{font-size:.73rem;color:var(--text2);background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:6px 12px;margin-bottom:14px;text-align:center;}
     .streak-card{background:linear-gradient(135deg,rgba(251,191,36,.1),rgba(245,158,11,.15));border:1px solid rgba(251,191,36,.25);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;}
     .streak-fire{font-size:1.5rem;}
     .streak-info{flex:1;}
@@ -661,6 +678,7 @@
           <div class="ob-feature"><span class="ob-feature-icon">⚡</span><div class="ob-feature-text"><strong>Registro instantáneo</strong> — dile lo que gastaste en lenguaje normal</div></div>
           <div class="ob-feature"><span class="ob-feature-icon">🔔</span><div class="ob-feature-text"><strong>Alertas inteligentes</strong> — antes de que se te acabe el presupuesto</div></div>
         </div>
+        <div class="ob-sim-badge">🔒 Simulador — no conectamos tu cuenta bancaria real</div>
         <button class="ob-cta" onclick="obNext()">Empezar — 2 minutos</button>
       </div>
     </div>
@@ -832,6 +850,7 @@
     </div>
     <div class="sb-section-lbl">Navegación</div>
     <div class="sb-nav-item" onclick="closeSidebar();switchMainTab('chat')"><span class="sb-nav-icon">💬</span><span class="t-chat">Chat</span></div>
+    <div class="sb-nav-item" onclick="closeSidebar();switchMainTab('catalog')"><span class="sb-nav-icon">🛒</span><span class="t-catalog">Catálogo</span></div>
     <div class="sb-nav-item" onclick="closeSidebar();switchMainTab('panel')"><span class="sb-nav-icon">📊</span><span class="t-dashboard">Dashboard</span></div>
     <div class="sb-nav-item" onclick="closeSidebar();switchMainTab('learn')"><span class="sb-nav-icon">🎮</span><span class="t-learn">Aprende</span><span class="sb-nav-badge" id="sb-xp-badge">XP</span></div>
     <div class="sb-nav-item" onclick="closeSidebar();switchMainTab('store')"><span class="sb-nav-icon">🛍️</span><span class="t-store">Tienda</span></div>
@@ -930,6 +949,7 @@
   </div>
   <div class="folder-tabs">
     <div class="folder-tab active" data-tab="chat" style="z-index:10" onclick="switchMainTab('chat')"><span class="tab-icon">💬</span><span class="t-chat">Chat</span></div>
+    <div class="folder-tab" data-tab="catalog" style="z-index:4" onclick="switchMainTab('catalog')"><span class="tab-icon">🛒</span><span class="t-catalog">Catálogo</span></div>
     <div class="folder-tab" data-tab="panel" style="z-index:3" onclick="switchMainTab('panel')"><span class="tab-icon">📊</span><span class="t-dashboard">Dashboard</span></div>
     <div class="folder-tab" data-tab="learn" style="z-index:2" onclick="switchMainTab('learn')"><span class="tab-icon">🎮</span><span class="t-learn">Aprende</span></div>
     <div class="folder-tab" data-tab="store" style="z-index:1" onclick="switchMainTab('store')"><span class="tab-icon">🛍️</span><span class="t-store">Tienda</span></div>
@@ -1012,6 +1032,9 @@
       💬 Dile a ALD.IA: <em style="color:var(--accent)">"Vendí $5,000 hoy"</em> o <em style="color:var(--accent)">"Pagué renta $8,000"</em> para registrar movimientos del negocio.
     </div>
   </div>
+
+  <!-- Catalog Panel -->
+  <div class="catalog-panel" id="catalog-panel"></div>
 
   <!-- Learn/Games Panel -->
   <div class="learn-panel" id="learn-panel">
@@ -2599,13 +2622,13 @@
   }
 
   function switchMainTab(tabName) {
-    const ORDER = ['chat','panel','learn','store'];
+    const ORDER = ['chat','catalog','panel','learn','store'];
     document.querySelectorAll('.folder-tab').forEach(t => {
       const active = t.dataset.tab === tabName;
       t.classList.toggle('active', active);
       t.style.zIndex = active ? 10 : (ORDER.length - ORDER.indexOf(t.dataset.tab));
     });
-    const ids = { chat:'messages', panel:'main-panel', learn:'learn-panel', store:'store-panel' };
+    const ids = { chat:'messages', catalog:'catalog-panel', panel:'main-panel', learn:'learn-panel', store:'store-panel' };
     Object.entries(ids).forEach(([tab, id]) => {
       const el = document.getElementById(id);
       if (el) el.style.display = (tab === tabName) ? 'flex' : 'none';
@@ -2633,6 +2656,7 @@
     if (evalStrip) evalStrip.style.display = isChat ? 'flex' : 'none';
     if (tabName === 'panel' && _mode === 'personal') loadPanelData();
     if (tabName === 'panel' && _mode === 'business') renderBizPanel();
+    if (tabName === 'catalog') renderCatalogPanel();
     if (tabName === 'learn')  renderLearnPanel();
     if (tabName === 'store')  renderStorePanel();
   }
@@ -2641,22 +2665,22 @@
   // LANGUAGE SYSTEM
   // ════════════════════════════════════════════════════════════
   const LANGS = {
-    es:  { chat:'Chat', dashboard:'Dashboard', learn:'Aprende', store:'Tienda',
+    es:  { chat:'Chat', catalog:'Catálogo', dashboard:'Dashboard', learn:'Aprende', store:'Tienda',
            greeting:'Hola', tagline:'Tu asistente financiera diaria.',
            login:'Iniciar sesión', register:'Crear cuenta', tryDemo:'Ver demo — Carlos',
            emailPh:'tu@email.com', passPh:'Contraseña (mín. 6)', online:'En línea',
            personal:'Personal', business:'Negocio' },
-    nah: { chat:'Notsa', dashboard:'Tlahtoa', learn:'Machtia', store:'Tianquiztli',
+    nah: { chat:'Notsa', catalog:'Tianquiztli', dashboard:'Tlahtoa', learn:'Machtia', store:'Tianquiztli',
            greeting:'Niltze', tagline:'Motlahtol tlen momac pesos.',
            login:'Calaqui', register:'Moyolchikawa', tryDemo:'Ixpoa demo — Carlos',
            emailPh:'mo@correo.com', passPh:'Tlapalehuiliztli (6+)', online:'Nemini',
            personal:'Notequitl', business:'Tlaneltoquiliztli' },
-    mam: { chat:'Tzotz', dashboard:'Xojob', learn:'Utzilaj', store:'K\'ayom',
+    mam: { chat:'Tzotz', catalog:'K\'ayob', dashboard:'Xojob', learn:'Utzilaj', store:'K\'ayom',
            greeting:'Ma alob', tagline:'Ti\' awil juntul yaj pesos.',
            login:'Ochel', register:'Sut k\'uben', tryDemo:'Ilej demo — Carlos',
            emailPh:'correo@tial.com', passPh:'Tzol (6+)', online:'Kuxan',
            personal:'In beel', business:'Komerso' },
-    mix: { chat:'Ndaa', dashboard:'Nani', learn:'Ntaa', store:'Ndutun',
+    mix: { chat:'Ndaa', catalog:'Ndutun', dashboard:'Nani', learn:'Ntaa', store:'Ndutun',
            greeting:'Sa\'a', tagline:'Tu tata ndute ñuu yivi.',
            login:'Kuu', register:'Ndutun ntaa', tryDemo:'Kuachi demo — Carlos',
            emailPh:'tu@correo.com', passPh:'Saa (6+)', online:'Ndee',
@@ -2684,6 +2708,7 @@
     if (sub)  sub.textContent  = L.tagline;
     // Tabs
     document.querySelectorAll('.t-chat').forEach(e=>e.textContent=L.chat);
+    document.querySelectorAll('.t-catalog').forEach(e=>e.textContent=L.catalog);
     document.querySelectorAll('.t-dashboard').forEach(e=>e.textContent=L.dashboard);
     document.querySelectorAll('.t-learn').forEach(e=>e.textContent=L.learn);
     document.querySelectorAll('.t-store').forEach(e=>e.textContent=L.store);
@@ -3467,6 +3492,65 @@
         <div class="${isEquip?'store-item-status':isOwned?'store-item-price':'store-item-price'}">${isEquip?'✓ Activo':isOwned?'Equipar':s.price+' XP'}</div>
       </div>`;
     }).join('');
+  }
+
+  // ════════════════════════════════════════════════════════════
+  // CATALOG
+  // ════════════════════════════════════════════════════════════
+  const CATALOGO = [
+    { id:'moto', nombre:'Moto Italika AT200', cat:'Transporte', precio:28999,
+      img:'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=400&q=80', emoji:'🏍️', badge:'Más popular', msi:18 },
+    { id:'laptop', nombre:'Laptop HP 15.6" i5', cat:'Tecnología', precio:12499,
+      img:'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&q=80', emoji:'💻', msi:12 },
+    { id:'samsung', nombre:'Samsung Galaxy A55', cat:'Celular', precio:9499,
+      img:'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&q=80', emoji:'📱', msi:12 },
+    { id:'switch', nombre:'Nintendo Switch OLED', cat:'Gaming', precio:8999,
+      img:'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=400&q=80', emoji:'🎮', badge:'Nuevo' },
+    { id:'tv', nombre:'Smart TV TCL 55"', cat:'Hogar', precio:8499,
+      img:'https://images.unsplash.com/photo-1593359677879-a4bb92f4834f?w=400&q=80', emoji:'📺', msi:18 },
+    { id:'ipad', nombre:'iPad Air 11"', cat:'Tecnología', precio:15999,
+      img:'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&q=80', emoji:'📱', msi:18 },
+    { id:'sofa', nombre:'Sofá cama Milano 3 pzas', cat:'Hogar', precio:5999,
+      img:'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=80', emoji:'🛋️', msi:12 },
+    { id:'bici', nombre:'Bicicleta MTB Benotto R26', cat:'Deporte', precio:4899,
+      img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80', emoji:'🚲' },
+  ];
+
+  function renderCatalogPanel() {
+    const panel = document.getElementById('catalog-panel');
+    if (!panel) return;
+    const ingreso = answers ? (answers.ingreso || 0) : 0;
+    const ahorro = Math.round(ingreso * 0.20);
+
+    const infoBar = ingreso > 0
+      ? `<div class="cat-info-bar">Con tu ingreso de <strong>$${ingreso.toLocaleString('es-MX')}</strong>/mes, ahorrando el 20% serían <strong>$${ahorro.toLocaleString('es-MX')}/mes</strong> para tus metas.</div>`
+      : `<div class="cat-info-bar">Registra tu ingreso en el chat para ver cuánto tiempo necesitas ahorrar para cada producto.</div>`;
+
+    const cards = CATALOGO.map(p => {
+      const meses = ahorro > 0 ? Math.ceil(p.precio / ahorro) : null;
+      const msiPago = p.msi ? Math.ceil(p.precio / p.msi) : null;
+      return `<div class="cat-card">
+        <div class="cat-img-wrap">
+          <img class="cat-img" src="${p.img}" alt="${p.nombre}" loading="lazy"
+            onerror="this.parentElement.innerHTML='<span class=\\'cat-img-fallback\\'>${p.emoji}</span>'">
+        </div>
+        <div class="cat-body">
+          ${p.badge ? `<div class="cat-badge">${p.badge}</div>` : ''}
+          <div class="cat-name">${p.nombre}</div>
+          <div class="cat-price">$${p.precio.toLocaleString('es-MX')}</div>
+          ${meses ? `<div class="cat-months">🕐 ${meses} mes${meses!==1?'es':''} ahorrando</div>` : ''}
+          ${msiPago ? `<div class="cat-msi">O $${msiPago.toLocaleString('es-MX')}/mes a ${p.msi} MSI</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+
+    panel.innerHTML = `
+      <div class="cat-header">
+        <h2>🛒 Catálogo</h2>
+        <p>Banco Azteca · Shopping Más — Simulador de compras</p>
+      </div>
+      ${infoBar}
+      <div class="cat-grid">${cards}</div>`;
   }
 
   function storeAction(type, id) {
