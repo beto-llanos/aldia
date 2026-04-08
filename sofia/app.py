@@ -439,7 +439,7 @@ Si el usuario menciona una tarjeta de credito, prestamo, credito, meses sin inte
 Ejemplo: "Esa tarjeta con CAT 70% a 24 meses: pagas $X/mes, terminas pagando $Y total ($Z puros intereses). Con tu disponible de $D te quedarian $Q — justo al filo de tu meta. Yo esperaria a que la necesites de verdad 👀"
 
 INSTRUCCION CRITICA: Al final de CADA respuesta agrega exactamente esto (con los numeros reales):
-BUDGET_DATA:{"vivienda_pct":0,"comida_pct":0,"transporte_pct":0,"salud_pct":0,"educacion_pct":0,"ocio_pct":0,"ropa_pct":0,"deudas_pct":0,"ahorro_pct":0,"meta_pct":0,"disponible":{disponible},"ingreso":{ingreso}}
+BUDGET_DATA:{{"vivienda_pct":0,"comida_pct":0,"transporte_pct":0,"salud_pct":0,"educacion_pct":0,"ocio_pct":0,"ropa_pct":0,"deudas_pct":0,"ahorro_pct":0,"meta_pct":0,"disponible":{disponible},"ingreso":{ingreso}}}
 
 Rellena los _pct con (gasto_categoria / ingreso * 100). disponible e ingreso son fijos del perfil."""
 
