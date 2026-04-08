@@ -6,6 +6,7 @@ from supabase import create_client
 from dotenv import load_dotenv
 from datetime import datetime
 import calendar
+import math
 import os
 import json
 import re
@@ -1109,9 +1110,15 @@ def health_score():
 
 @app.route("/api/puede-pagar", methods=["POST"])
 def puede_pagar():
-    """¿Puedo permitirme este gasto sin afectar mi meta?"""
+    """Evalúa si un gasto es viable considerando tipo de pago, plazos e intereses."""
     data = request.json
     monto = float(data.get("monto", 0))
+    tipo = data.get("tipo", "unico")          # unico | msi | credito
+    meses = int(data.get("meses", 1))
+    tasa_anual = float(data.get("tasa_anual", 0))
+    gastos_extra = float(data.get("gastos_extra", 0))
+    nombre = data.get("nombre", "")
+
     session_id = get_session_id()
     perfil = load_perfil(session_id)
     gastos = load_gastos(session_id)
@@ -1119,6 +1126,31 @@ def puede_pagar():
     if ingreso == 0 or monto <= 0:
         return jsonify({"error": "datos insuficientes"})
 
+    monto_total = monto + gastos_extra
+
+    # Cálculo de pago mensual y costo total según tipo
+    if tipo == "unico":
+        pago_mensual = monto_total
+        costo_total = monto_total
+        costo_intereses = 0
+    elif tipo == "msi":
+        meses = max(meses, 1)
+        pago_mensual = monto_total / meses
+        costo_total = monto_total
+        costo_intereses = 0
+    else:  # credito con interés
+        if tasa_anual <= 0:
+            tasa_anual = 50.0  # CAT promedio tarjeta bancaria México
+        r = tasa_anual / 12 / 100
+        meses = max(meses, 1)
+        if r > 0:
+            pago_mensual = monto_total * (r * (1 + r) ** meses) / ((1 + r) ** meses - 1)
+        else:
+            pago_mensual = monto_total / meses
+        costo_total = pago_mensual * meses
+        costo_intereses = costo_total - monto_total
+
+    # Estado actual del presupuesto
     gastos_fijos = perfil.get("gastos_fijos_mensuales", perfil.get("gastos_fijos_inicio", 0))
     total_gastado = sum(gastos.values()) + gastos_fijos
     disponible = max(0, ingreso - total_gastado)
@@ -1129,26 +1161,129 @@ def puede_pagar():
     colchon_meta = max(0, ahorro_mensual_necesario - ahorro_actual)
     disponible_real = disponible - colchon_meta
 
-    puede = monto <= disponible_real
-    impacto_pct = round(monto / ingreso * 100, 1)
+    # ¿Puede pagarlo?
+    impacto_mensual = pago_mensual if tipo != "unico" else monto_total
+    # puede_cash: si hay dinero real disponible para el gasto
+    # puede_meta: si además no sacrifica el colchón de meta
+    puede_cash = impacto_mensual <= disponible
+    puede_meta = impacto_mensual <= disponible_real
+    # "puede" = sí hay efectivo (aunque afecte meta)
+    puede = puede_cash
+    afecta_meta = puede_cash and not puede_meta
+    impacto_pct = round(impacto_mensual / ingreso * 100, 1)
+    deficit_meta = round(max(0, impacto_mensual - disponible_real))
+    max_sin_meta = round(max(0, disponible_real))
 
-    horas_trabajadas = round(monto / (ingreso / 160), 1) if ingreso > 0 else 0
+    horas_trabajadas = round(costo_total / (ingreso / 160), 1) if ingreso > 0 else 0
     dias_trabajados = round(horas_trabajadas / 8, 1)
+
+    # ¿Qué categorías se sacrifican? — slacks por categoría
+    porcentajes_activos = calcular_porcentajes_activos(perfil)
+    slacks = []
+    for cat, pct_cat in porcentajes_activos.items():
+        limite_cat = ingreso * pct_cat / 100
+        gastado_cat = gastos.get(cat, 0)
+        slack_cat = max(0, limite_cat - gastado_cat)
+        if limite_cat > 0:
+            slacks.append({
+                "cat": cat,
+                "slack": round(slack_cat),
+                "limite": round(limite_cat),
+                "gastado": round(gastado_cat),
+                "uso_pct": round(gastado_cat / limite_cat * 100) if limite_cat > 0 else 0
+            })
+    slacks.sort(key=lambda x: x["slack"], reverse=True)
+
+    # ¿Cuándo sí puedo comprarlo?
+    meses_para_poder = 0
+    fecha_puede_str = ""
+    ahorro_mes_requerido = 0
+    if not puede_cash:
+        faltante = impacto_mensual - disponible
+        ahorro_mensual_posible = ingreso * 0.15
+        if ahorro_mensual_posible > 0 and faltante > 0:
+            meses_para_poder = math.ceil(faltante / ahorro_mensual_posible)
+            ahorro_mes_requerido = round(faltante / max(meses_para_poder, 1))
+            fecha_target = datetime.now() + timedelta(days=30 * meses_para_poder)
+            meses_es = ["","ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"]
+            fecha_puede_str = f"{meses_es[fecha_target.month]} {fecha_target.year}"
 
     return jsonify({
         "puede": puede,
-        "monto": monto,
+        "afecta_meta": afecta_meta,
+        "nombre": nombre,
+        "monto": round(monto),
+        "monto_total": round(monto_total),
+        "tipo": tipo,
+        "meses": meses if tipo != "unico" else 1,
+        "tasa_anual": tasa_anual if tipo == "credito" else 0,
+        "pago_mensual": round(pago_mensual),
+        "costo_total": round(costo_total),
+        "costo_intereses": round(costo_intereses),
         "disponible": round(disponible),
         "disponible_real": round(disponible_real),
         "impacto_pct": impacto_pct,
         "colchon_meta": round(colchon_meta),
+        "deficit_meta": deficit_meta,
+        "max_sin_meta": max_sin_meta,
         "horas_trabajadas": horas_trabajadas,
         "dias_trabajados": dias_trabajados,
-        "mensaje": (
-            f"✅ Sí puedes. Te quedarán ${disponible_real - monto:,.0f} libres." if puede
-            else f"⚠️ Cuidado. Solo tienes ${disponible_real:,.0f} disponibles sin tocar tu meta."
-        )
+        "ingreso": ingreso,
+        "slacks": slacks[:4],
+        "meses_para_poder": meses_para_poder,
+        "fecha_puede": fecha_puede_str,
+        "ahorro_mes_requerido": ahorro_mes_requerido,
     })
+
+
+@app.route("/api/recomienda-compra", methods=["POST"])
+def recomienda_compra():
+    """Genera recomendación IA personalizada sobre una decisión de compra."""
+    data = request.json
+    nombre = data.get("nombre", "esta compra")
+    monto = data.get("monto_total", 0)
+    puede = data.get("puede", False)
+    afecta_meta = data.get("afecta_meta", False)
+    tipo = data.get("tipo", "unico")
+    meses = data.get("meses", 1)
+    pago_mensual = data.get("pago_mensual", 0)
+    costo_total = data.get("costo_total", 0)
+    costo_intereses = data.get("costo_intereses", 0)
+    ingreso = data.get("ingreso", 0)
+    impacto_pct = data.get("impacto_pct", 0)
+    meses_para_poder = data.get("meses_para_poder", 0)
+    disponible = data.get("disponible", 0)
+    if ingreso == 0:
+        return jsonify({"recomendacion": ""})
+
+    tipo_label = {"unico": "pago único", "msi": f"MSI a {meses} meses", "credito": f"crédito a {meses} meses con interés"}.get(tipo, tipo)
+    prompt = f"""Eres ALD.IA, asistente financiera para jovenes mexicanos. Genera UNA recomendacion de exactamente 2 oraciones para esta decision de compra.
+
+DATOS:
+- Producto: {nombre or "compra"}
+- Monto total: ${monto:,.0f}
+- Tipo de pago: {tipo_label}
+- Pago mensual: ${pago_mensual:,.0f}
+- Costo total: ${costo_total:,.0f}{(' (incluye $' + f'{costo_intereses:,.0f}' + ' de intereses)') if costo_intereses > 0 else ''}
+- Puede pagarlo: {'SI' if puede else 'NO — le faltan $' + f'{max(0, pago_mensual - disponible):,.0f}'}
+- Afecta meta de ahorro: {'SI' if afecta_meta else 'NO'}
+- Impacto en ingreso: {impacto_pct}%
+- Meses para poder comprarlo: {meses_para_poder if meses_para_poder > 0 else 'ya puede'}
+
+REGLAS:
+1. Exactamente 2 oraciones, texto fluido sin bullets ni listas
+2. Si hay mejor opcion de pago, sugierela con numeros concretos
+3. Si no puede comprar, da consejo accionable especifico
+4. Tono: amigo directo que sabe de finanzas, espanol casual mexicano
+5. Sin emojis"""
+
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.65,
+        max_tokens=130
+    )
+    return jsonify({"recomendacion": response.choices[0].message.content.strip()})
 
 
 @app.route("/api/eliminar-ultimo", methods=["POST"])
@@ -1428,6 +1563,73 @@ def conectar_banco():
             {"tipo": "Crédito", "numero": "****7890", "limite": 20000, "usado": 4500},
         ]
     })
+
+
+@app.route("/api/dashboard-insight", methods=["GET"])
+def dashboard_insight():
+    session_id = get_session_id()
+    perfil = load_perfil(session_id)
+    gastos = load_gastos(session_id)
+    ingreso = perfil.get("ingreso", 0)
+    if ingreso == 0:
+        return jsonify({"bullets": []})
+
+    now = datetime.now()
+    dia = now.day
+    dias_mes = calendar.monthrange(now.year, now.month)[1]
+    total_gastado = sum(gastos.values())
+    tasa_diaria = total_gastado / dia if dia > 0 else 0
+    proyeccion = round(tasa_diaria * dias_mes)
+    disponible = max(0, ingreso - total_gastado)
+    meta = perfil.get("meta", 0)
+    plazo = perfil.get("plazo_meses", 12)
+    ahorro_real = gastos.get("ahorro", 0)
+    ahorro_necesario = round(meta / plazo) if meta > 0 and plazo > 0 else 0
+
+    porcentajes_activos = calcular_porcentajes_activos(perfil)
+    cats_excedidas = []
+    cats_bien = []
+    for cat, pct in porcentajes_activos.items():
+        limite = ingreso * pct / 100
+        gastado = gastos.get(cat, 0)
+        if limite > 0 and gastado > limite:
+            cats_excedidas.append(f"{cat} (${gastado:,.0f} vs limite ${limite:,.0f})")
+        elif limite > 0 and gastado <= limite * 0.7 and gastado > 0:
+            cats_bien.append(cat)
+
+    nombre = perfil.get("nombre", "")
+    meta_desc = perfil.get("meta_desc", "")
+
+    prompt = f"""Eres ALD.IA, asistente financiera para jovenes mexicanos. Analiza estos datos y genera exactamente 3 bullets de retroalimentacion inteligente en espanol casual.
+
+DATOS DEL MES:
+- Dia: {dia}/{dias_mes}
+- Ingreso: ${ingreso:,.0f}
+- Gastado hasta hoy: ${total_gastado:,.0f}
+- Disponible restante: ${disponible:,.0f}
+- Proyeccion fin de mes: ${proyeccion:,.0f} {'(EXCEDE ingreso!)' if proyeccion > ingreso else ''}
+- Ahorro registrado: ${ahorro_real:,.0f} {'/ meta mensual $' + f'{ahorro_necesario:,.0f}' if ahorro_necesario > 0 else ''}
+- Categorias excedidas: {', '.join(cats_excedidas) if cats_excedidas else 'ninguna'}
+- Categorias bajo control: {', '.join(cats_bien) if cats_bien else 'N/A'}
+- Meta de ahorro: {meta_desc if meta_desc else ('$' + f'{meta:,.0f}' if meta > 0 else 'sin meta')}
+
+REGLAS:
+1. Exactamente 3 bullets, cada uno en 1 sola oracion corta (max 12 palabras).
+2. Cada bullet empieza con un emoji relevante.
+3. Sé especifico con numeros reales del usuario.
+4. Tono: amigo que sabe de finanzas, directo y util.
+5. Formato: una linea por bullet, sin numeracion, sin markdown extra.
+6. Si hay algo critico (proyeccion excede ingreso, categoria excedida) mencionalo primero."""
+
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.6,
+        max_tokens=200
+    )
+    text = response.choices[0].message.content.strip()
+    bullets = [line.strip() for line in text.split('\n') if line.strip()][:4]
+    return jsonify({"bullets": bullets})
 
 
 @app.route("/ping")

@@ -112,7 +112,7 @@
     #quick-more-btn{display:none;}
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:none;align-items:flex-end;justify-content:center;}
     .modal-overlay.open{display:flex;}
-    .modal-card{background:#0f1420;border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:28px 24px 32px;backdrop-filter:blur(24px);}
+    .modal-card{background:#0f1420;border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:28px 24px 32px;backdrop-filter:blur(24px);max-height:88vh;overflow-y:auto;}
     .modal-card h3{font-size:1.1rem;font-weight:700;margin-bottom:6px;}
     .modal-card p{color:var(--text2);font-size:.88rem;margin-bottom:20px;line-height:1.5;}
     .modal-input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);font-size:.95rem;outline:none;margin-bottom:10px;}
@@ -130,6 +130,55 @@
     .modal-result.nok{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.25);}
     .modal-close{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);background:none;color:var(--text2);font-size:.9rem;cursor:pointer;font-family:inherit;transition:.15s;}
     .modal-close:hover{background:var(--surface);color:var(--text);}
+    /* Eval strip */
+    .eval-strip{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;background:linear-gradient(90deg,rgba(59,130,246,.07),rgba(99,102,241,.07));border-bottom:1px solid rgba(59,130,246,.18);flex-shrink:0;gap:10px;}
+    .eval-strip-btn{padding:7px 14px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:.76rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;transition:.2s;}
+    .eval-strip-btn:hover{opacity:.85;}
+    /* Wizard ¿Me alcanza? */
+    .mp-text-input{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:.9rem;outline:none;margin-bottom:10px;font-family:inherit;}
+    .mp-text-input:focus{border-color:var(--accent);}
+    .mp-tipo-btn{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:.88rem;cursor:pointer;margin-bottom:8px;text-align:left;font-family:inherit;transition:.15s;display:flex;align-items:center;gap:12px;}
+    .mp-tipo-btn:hover{border-color:var(--accent);background:rgba(59,130,246,.1);}
+    .mp-meses-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+    .mp-mes-chip{padding:8px 18px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font-size:.9rem;font-family:inherit;transition:.15s;}
+    .mp-mes-chip.selected{border-color:var(--accent);background:rgba(59,130,246,.15);color:var(--accent);font-weight:700;}
+    .mp-continue-btn{width:100%;padding:12px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px;transition:.2s;}
+    .mp-continue-btn:hover{opacity:.85;}
+    .mp-continue-btn:disabled{opacity:.4;cursor:not-allowed;}
+    .mp-back-btn{background:none;border:none;color:var(--text2);font-size:.8rem;cursor:pointer;font-family:inherit;padding:0 0 12px;display:block;}
+    .mp-back-btn:hover{color:var(--text);}
+    .mp-verdict{border-radius:10px;padding:11px 14px;margin-bottom:12px;font-size:.9rem;font-weight:700;line-height:1.4;}
+    .mp-verdict.ok{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.25);}
+    .mp-verdict.warn{background:rgba(234,179,8,.1);color:var(--yellow);border:1px solid rgba(234,179,8,.3);}
+    .mp-verdict.nok{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.25);}
+    .mp-verdict.loading{background:var(--surface2);color:var(--text2);border:1px solid var(--border);}
+    .mp-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px;}
+    .mp-result-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 11px;}
+    .mp-result-item-lbl{font-size:.65rem;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
+    .mp-result-item-val{font-size:.92rem;font-weight:700;}
+    .mp-tip{font-size:.8rem;color:var(--text2);padding:8px 10px;background:var(--surface2);border-radius:8px;margin-bottom:10px;line-height:1.5;}
+    .mp-step-dots{display:flex;justify-content:center;gap:5px;margin-bottom:14px;}
+    .mp-dot{height:6px;border-radius:3px;transition:.2s;background:var(--border);}
+    .mp-dot.active{background:var(--accent);}
+    /* Secciones del resultado extendido */
+    .mp-section-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text2);margin:12px 0 7px;}
+    .mp-comp-table{width:100%;border-collapse:collapse;font-size:.78rem;margin-bottom:4px;}
+    .mp-comp-table th{padding:4px 6px;color:var(--text2);font-weight:600;text-align:center;font-size:.68rem;text-transform:uppercase;}
+    .mp-comp-table td{padding:6px;text-align:center;border-top:1px solid var(--border);}
+    .mp-comp-table .col-hl{background:rgba(59,130,246,.07);}
+    .mp-comp-best{color:var(--green);font-weight:700;}
+    .mp-comp-worst{color:var(--red);}
+    .mp-cuando-si{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:10px 12px;margin-bottom:4px;}
+    .mp-cuando-progress{height:5px;background:var(--border);border-radius:3px;margin:7px 0 4px;}
+    .mp-cuando-fill{height:5px;background:var(--accent);border-radius:3px;}
+    .mp-sac-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;font-size:.79rem;border-bottom:1px solid var(--border);}
+    .mp-sac-row:last-child{border-bottom:none;}
+    .mp-sac-bar{flex:1;height:4px;background:var(--border);border-radius:2px;margin:0 8px;}
+    .mp-sac-fill{height:4px;border-radius:2px;background:var(--accent);}
+    .mp-ai-rec{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:4px;font-size:.82rem;color:var(--text);line-height:1.55;}
+    .mp-ai-header{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+    .mp-ai-badge{width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:800;color:#fff;flex-shrink:0;}
+    .mp-ai-spin{width:12px;height:12px;border-radius:50%;border:2px solid var(--accent);border-top-color:transparent;animation:spin .7s linear infinite;}
     .alerta-banner{position:fixed;top:0;left:0;right:0;z-index:500;background:var(--red);color:#fff;padding:12px 20px;font-size:.9rem;font-weight:600;text-align:center;display:none;}
     .historial-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:400;display:none;align-items:flex-end;justify-content:center;}
     .historial-overlay.open{display:flex;}
@@ -280,6 +329,10 @@
     #main-panel{display:none;flex:1;overflow-y:auto;padding:16px 14px;flex-direction:column;gap:16px;}
     .panel-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;}
     .panel-card-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+    .insight-dot-spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--accent);border-top-color:transparent;animation:spin .7s linear infinite;flex-shrink:0;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .insight-bullet{font-size:.84rem;color:var(--text);line-height:1.45;padding:7px 10px;background:rgba(255,255,255,.04);border-radius:8px;border-left:2px solid var(--accent);}
+    #insight-refresh-btn:hover{background:var(--surface);color:var(--text);}
     .panel-health{display:flex;gap:14px;align-items:center;}
     .panel-ring{position:relative;width:64px;height:64px;flex-shrink:0;}
     .panel-ring svg{width:100%;height:100%;transform:rotate(-90deg);}
@@ -885,6 +938,10 @@
     <div class="folder-tab" data-tab="learn" style="z-index:2" onclick="switchMainTab('learn')"><span class="tab-icon">🎮</span><span class="t-learn">Aprende</span></div>
     <div class="folder-tab" data-tab="store" style="z-index:1" onclick="switchMainTab('store')"><span class="tab-icon">🛍️</span><span class="t-store">Tienda</span></div>
   </div>
+  <div class="eval-strip" id="eval-strip">
+    <div style="font-size:.8rem;line-height:1.35"><strong style="color:var(--text)">💸 ¿Me alcanza?</strong><br><span style="color:var(--text2);font-size:.72rem">Evalúa antes de gastar</span></div>
+    <button class="eval-strip-btn" onclick="abrirModal()">Evaluar compra →</button>
+  </div>
   <div class="messages" id="messages"></div>
   <div id="main-panel">
     <!-- Stats row: Disponible + Día + Ritmo badge -->
@@ -894,6 +951,23 @@
       <div class="panel-stat" style="flex:2">
         <div id="p-ritmo-badge" style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:700;border:1px solid var(--border);background:var(--surface)">-</div>
         <div class="panel-stat-label" style="margin-top:4px">Ritmo de gasto</div>
+      </div>
+    </div>
+    <!-- AI Insight Card -->
+    <div class="panel-card" id="ai-insight-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:7px">
+          <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;color:#fff;flex-shrink:0">IA</div>
+          <span style="font-size:.8rem;font-weight:700;color:var(--text)">Retroalimentación ALD.IA</span>
+        </div>
+        <button onclick="loadDashboardInsight(true)" id="insight-refresh-btn" style="background:none;border:none;color:var(--text2);font-size:.85rem;cursor:pointer;padding:4px 6px;border-radius:6px;transition:.15s" title="Actualizar">↻</button>
+      </div>
+      <div id="ai-insight-body">
+        <div id="ai-insight-loading" style="display:flex;align-items:center;gap:8px;padding:6px 0">
+          <div class="insight-dot-spin"></div>
+          <span style="font-size:.8rem;color:var(--text2)">Analizando tu mes...</span>
+        </div>
+        <div id="ai-insight-bullets" style="display:none;flex-direction:column;gap:7px"></div>
       </div>
     </div>
     <!-- Chart 1: Donut (category distribution) -->
@@ -1007,16 +1081,97 @@
 </div>
 
 
-<!-- Modal ¿Lo puedo pagar? -->
+<!-- Modal ¿Me alcanza? (wizard multi-paso) -->
 <div id="modal-pagar" style="display:none" class="modal-overlay" onclick="if(event.target===this)cerrarModal()">
   <div class="modal-card">
-    <div class="modal-title">💸 ¿Lo puedo pagar?</div>
-    <div class="modal-sub">Ingresa el monto y te digo si afecta tu meta</div>
-    <div class="modal-input-wrap">
-      <span>$</span>
-      <input type="number" id="modal-monto" placeholder="0" inputmode="numeric" oninput="checkPuedePagar(this.value)" style="width:100%">
+    <div class="mp-step-dots">
+      <div class="mp-dot active" id="mp-d0" style="width:16px"></div>
+      <div class="mp-dot" id="mp-d1" style="width:6px"></div>
+      <div class="mp-dot" id="mp-d2" style="width:6px"></div>
     </div>
-    <div class="modal-result empty" id="modal-result">Escribe un monto para ver si puedes permitírtelo</div>
+    <!-- Paso 1: Monto -->
+    <div id="mp-step-0">
+      <div class="modal-title">💸 ¿Me alcanza este gasto?</div>
+      <div class="modal-sub" style="margin-bottom:14px">Te digo el impacto real en tu presupuesto</div>
+      <input type="text" id="mp-nombre" class="mp-text-input" placeholder="¿Qué quieres comprar? (opcional)">
+      <div class="modal-input-wrap">
+        <span>$</span>
+        <input type="number" id="mp-monto" placeholder="0" inputmode="numeric" style="width:100%">
+      </div>
+      <div id="mp-extra-toggle" style="font-size:.78rem;color:var(--accent);cursor:pointer;margin-bottom:10px" onclick="toggleExtraCosts()">+ Agregar gastos extra (envío, impuestos...)</div>
+      <div id="mp-extra-wrap" style="display:none;margin-bottom:4px">
+        <div class="modal-input-wrap"><span>$</span><input type="number" id="mp-extra" placeholder="Gastos adicionales" inputmode="numeric" style="width:100%"></div>
+      </div>
+      <button class="mp-continue-btn" onclick="mpGoStep1()">Continuar →</button>
+    </div>
+    <!-- Paso 2: Tipo de pago -->
+    <div id="mp-step-1" style="display:none">
+      <button class="mp-back-btn" onclick="mpGoTo(0)">← Atrás</button>
+      <div class="modal-title" style="margin-bottom:14px">¿Cómo vas a pagar?</div>
+      <button class="mp-tipo-btn" onclick="mpSelectTipo('unico')">
+        <span style="font-size:1.2rem">💵</span>
+        <div><div style="font-weight:700">Pago único</div><div style="font-size:.74rem;color:var(--text2)">De una sola vez</div></div>
+      </button>
+      <button class="mp-tipo-btn" onclick="mpSelectTipo('msi')">
+        <span style="font-size:1.2rem">🔄</span>
+        <div><div style="font-weight:700">Meses sin intereses (MSI)</div><div style="font-size:.74rem;color:var(--text2)">Mismo monto dividido en cuotas</div></div>
+      </button>
+      <button class="mp-tipo-btn" onclick="mpSelectTipo('credito')">
+        <span style="font-size:1.2rem">📈</span>
+        <div><div style="font-weight:700">Meses con interés</div><div style="font-size:.74rem;color:var(--text2)">Tarjeta o crédito con costo adicional</div></div>
+      </button>
+    </div>
+    <!-- Paso 3: Plazo -->
+    <div id="mp-step-2" style="display:none">
+      <button class="mp-back-btn" onclick="mpGoTo(1)">← Atrás</button>
+      <div class="modal-title" style="margin-bottom:14px">¿A cuántos meses?</div>
+      <div class="mp-meses-chips">
+        <button class="mp-mes-chip" onclick="mpSelectMeses(3)">3</button>
+        <button class="mp-mes-chip" onclick="mpSelectMeses(6)">6</button>
+        <button class="mp-mes-chip" onclick="mpSelectMeses(9)">9</button>
+        <button class="mp-mes-chip" onclick="mpSelectMeses(12)">12</button>
+        <button class="mp-mes-chip" onclick="mpSelectMeses(18)">18</button>
+        <button class="mp-mes-chip" onclick="mpSelectMeses(24)">24</button>
+      </div>
+      <div id="mp-tasa-wrap" style="display:none;margin-bottom:10px">
+        <div style="font-size:.78rem;color:var(--text2);margin-bottom:6px">Tasa anual % — déjalo vacío para usar referencia CAT</div>
+        <div class="modal-input-wrap"><span>%</span><input type="number" id="mp-tasa" placeholder="Ej: 36" inputmode="numeric" style="width:100%"></div>
+      </div>
+      <button class="mp-continue-btn" id="mp-calc-btn" onclick="mpCalcular()" disabled>Calcular impacto</button>
+    </div>
+    <!-- Resultado -->
+    <div id="mp-result" style="display:none">
+      <button class="mp-back-btn" onclick="mpGoTo(0)">← Evaluar otro</button>
+      <div id="mp-verdict-box" class="mp-verdict loading">⏳ Calculando...</div>
+      <div class="mp-result-grid" id="mp-result-grid"></div>
+      <div id="mp-tip-box" class="mp-tip" style="display:none"></div>
+      <!-- Recomendación IA -->
+      <div id="mp-ai-rec" class="mp-ai-rec" style="display:none">
+        <div class="mp-ai-header">
+          <div class="mp-ai-badge">IA</div>
+          <span style="font-size:.68rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em">Recomendación ALD.IA</span>
+          <div class="mp-ai-spin" id="mp-ai-spin"></div>
+        </div>
+        <div id="mp-ai-text" style="color:var(--text2);font-size:.78rem">Analizando...</div>
+      </div>
+      <!-- Comparador de escenarios -->
+      <div id="mp-comp-wrap" style="display:none">
+        <div class="mp-section-title">📊 Comparar escenarios de pago</div>
+        <div id="mp-comp-table"></div>
+      </div>
+      <!-- ¿Cuándo sí puedo? -->
+      <div id="mp-cuando-wrap" style="display:none" class="mp-cuando-si">
+        <div style="font-size:.75rem;font-weight:700;color:var(--accent);margin-bottom:4px">📅 ¿Cuándo sí puedo comprarlo?</div>
+        <div id="mp-cuando-text" style="font-size:.82rem;color:var(--text)"></div>
+        <div class="mp-cuando-progress"><div class="mp-cuando-fill" id="mp-cuando-fill" style="width:0%"></div></div>
+        <div id="mp-cuando-sub" style="font-size:.72rem;color:var(--text2)"></div>
+      </div>
+      <!-- ¿Qué sacrifico? -->
+      <div id="mp-sac-wrap" style="display:none">
+        <div class="mp-section-title">🔍 ¿Qué categoría absorbe el impacto?</div>
+        <div id="mp-sac-rows"></div>
+      </div>
+    </div>
     <button class="modal-close" onclick="cerrarModal()">Cerrar</button>
   </div>
 </div>
@@ -1837,49 +1992,238 @@
     fetch('/api/health-score').then(r => r.json()).then(updateHealthScore).catch(() => {});
   }
 
-  // ── Modal ¿Lo puedo pagar? ────────────────────────────────────────────────
+  // ── Modal ¿Me alcanza? (wizard) ──────────────────────────────────────────
+  let _mpTipo = 'unico', _mpMeses = 0;
+
   function abrirModal() {
     const m = document.getElementById('modal-pagar');
-    if (m) { m.style.display = 'flex'; document.getElementById('modal-monto').focus(); }
+    if (m) { m.style.display = 'flex'; mpGoTo(0); setTimeout(() => document.getElementById('mp-monto').focus(), 80); }
   }
 
   function cerrarModal() {
     const m = document.getElementById('modal-pagar');
-    if (m) { m.style.display = 'none'; document.getElementById('modal-monto').value = ''; }
-    document.getElementById('modal-result').className = 'modal-result empty';
-    document.getElementById('modal-result').textContent = 'Escribe un monto para ver si puedes permitírtelo';
+    if (m) m.style.display = 'none';
+    ['mp-monto','mp-nombre','mp-extra','mp-tasa'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    _mpTipo = 'unico'; _mpMeses = 0;
+    document.getElementById('mp-extra-wrap').style.display = 'none';
+    document.getElementById('mp-extra-toggle').textContent = '+ Agregar gastos extra (envío, impuestos...)';
   }
 
-  let _puedeTimer = null;
-  function checkPuedePagar(val) {
-    clearTimeout(_puedeTimer);
-    const monto = parseFloat(val);
-    const resultEl = document.getElementById('modal-result');
-    if (!monto || monto <= 0) {
-      resultEl.className = 'modal-result empty';
-      resultEl.textContent = 'Escribe un monto para ver si puedes permitírtelo';
-      return;
+  function toggleExtraCosts() {
+    const wrap = document.getElementById('mp-extra-wrap');
+    const tog  = document.getElementById('mp-extra-toggle');
+    const show = wrap.style.display === 'none';
+    wrap.style.display = show ? '' : 'none';
+    tog.textContent = show ? '− Quitar gastos extra' : '+ Agregar gastos extra (envío, impuestos...)';
+  }
+
+  function mpGoTo(step) {
+    const steps = ['mp-step-0','mp-step-1','mp-step-2','mp-result'];
+    steps.forEach((id, i) => { const el = document.getElementById(id); if (el) el.style.display = i === step ? 'block' : 'none'; });
+    const dotW = ['16px','6px','6px'];
+    const dotI = step === 3 ? 2 : Math.min(step, 2);
+    [0,1,2].forEach(i => {
+      const d = document.getElementById('mp-d'+i);
+      if (!d) return;
+      d.style.background = i === dotI ? 'var(--accent)' : 'var(--border)';
+      d.style.width = i === dotI ? '16px' : '6px';
+    });
+  }
+
+  function mpGoStep1() {
+    const monto = parseFloat(document.getElementById('mp-monto').value);
+    if (!monto || monto <= 0) { document.getElementById('mp-monto').focus(); return; }
+    mpGoTo(1);
+  }
+
+  function mpSelectTipo(tipo) {
+    _mpTipo = tipo;
+    if (tipo === 'unico') { mpCalcular(); return; }
+    document.getElementById('mp-tasa-wrap').style.display = tipo === 'credito' ? '' : 'none';
+    document.querySelectorAll('.mp-mes-chip').forEach(c => c.classList.remove('selected'));
+    _mpMeses = 0;
+    const btn = document.getElementById('mp-calc-btn');
+    if (btn) { btn.disabled = true; btn.style.opacity = '.4'; }
+    mpGoTo(2);
+  }
+
+  function mpSelectMeses(n) {
+    _mpMeses = n;
+    document.querySelectorAll('.mp-mes-chip').forEach(c => c.classList.toggle('selected', parseInt(c.textContent) === n));
+    const btn = document.getElementById('mp-calc-btn');
+    if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+  }
+
+  // Helper: fórmula amortización
+  function mpAmort(monto, tasaAnual, meses) {
+    const r = tasaAnual / 12 / 100;
+    if (r <= 0) return monto / meses;
+    return monto * (r * Math.pow(1+r, meses)) / (Math.pow(1+r, meses) - 1);
+  }
+
+  // Comparador de 3 escenarios de pago
+  function mpRenderComparador(montoTotal, ingreso, tipoActual) {
+    const wrap = document.getElementById('mp-comp-wrap');
+    const table = document.getElementById('mp-comp-table');
+    if (!wrap || !table || montoTotal <= 0 || ingreso <= 0) return;
+    const CAT_REF = 50;
+    const scen = [
+      { label:'Pago único', pago: montoTotal, total: montoTotal, intereses: 0, tipo:'unico' },
+      { label:'6 MSI', pago: montoTotal/6, total: montoTotal, intereses: 0, tipo:'msi' },
+      { label:'12 c/int.', pago: mpAmort(montoTotal, CAT_REF, 12), total: 0, intereses: 0, tipo:'credito' },
+    ];
+    const p12 = mpAmort(montoTotal, CAT_REF, 12);
+    scen[2].pago = p12; scen[2].total = p12*12; scen[2].intereses = p12*12 - montoTotal;
+    const pagos = scen.map(s => s.pago);
+    const minPago = Math.min(...pagos), maxTotal = Math.max(...scen.map(s => s.total));
+    const fmt = n => '$' + Math.round(n).toLocaleString('es-MX');
+    const fmtPct = n => Math.round(n/ingreso*100) + '%';
+    table.innerHTML = `<table class="mp-comp-table">
+      <thead><tr><th></th>${scen.map((s,i) => `<th class="${s.tipo===tipoActual?'col-hl':''}">${s.label}${s.tipo===tipoActual?' ✓':''}</th>`).join('')}</tr></thead>
+      <tbody>
+        <tr><td style="color:var(--text2);font-size:.72rem;text-align:left">Pago mensual</td>${scen.map(s => `<td class="${s.tipo===tipoActual?'col-hl':''} ${s.pago===minPago?'mp-comp-best':''}">${fmt(s.pago)}</td>`).join('')}</tr>
+        <tr><td style="color:var(--text2);font-size:.72rem;text-align:left">Costo total</td>${scen.map(s => `<td class="${s.tipo===tipoActual?'col-hl':''} ${s.total===maxTotal?'mp-comp-worst':''}">${fmt(s.total)}</td>`).join('')}</tr>
+        <tr><td style="color:var(--text2);font-size:.72rem;text-align:left">% ingreso/mes</td>${scen.map(s => `<td class="${s.tipo===tipoActual?'col-hl':''}">${fmtPct(s.pago)}</td>`).join('')}</tr>
+        <tr><td style="color:var(--text2);font-size:.72rem;text-align:left">Intereses</td>${scen.map(s => `<td class="${s.tipo===tipoActual?'col-hl':''} ${s.intereses>0?'mp-comp-worst':''}">${s.intereses>0?fmt(s.intereses):'—'}</td>`).join('')}</tr>
+      </tbody>
+    </table><div style="font-size:.65rem;color:var(--text2);margin-top:4px">*Interés estimado con CAT ${CAT_REF}% anual (referencia promedio tarjeta bancaria MX)</div>`;
+    wrap.style.display = '';
+  }
+
+  // ¿Cuándo sí puedo?
+  function mpRenderCuandoSi(d) {
+    const wrap = document.getElementById('mp-cuando-wrap');
+    if (!wrap) return;
+    if (d.puede || !d.meses_para_poder) { wrap.style.display = 'none'; return; }
+    const txt = document.getElementById('mp-cuando-text');
+    const sub = document.getElementById('mp-cuando-sub');
+    const fill = document.getElementById('mp-cuando-fill');
+    const progreso = Math.round((d.disponible / d.monto_total) * 100);
+    txt.textContent = `En ${d.meses_para_poder} ${d.meses_para_poder===1?'mes':'meses'} podrías comprarlo (${d.fecha_puede})`;
+    sub.textContent = `Ahorrando $${(d.ahorro_mes_requerido||0).toLocaleString('es-MX')}/mes llegarías en tiempo.`;
+    fill.style.width = Math.max(5, Math.min(progreso, 95)) + '%';
+    wrap.style.display = '';
+  }
+
+  // ¿Qué sacrifico?
+  function mpRenderSacrificio(d) {
+    const wrap = document.getElementById('mp-sac-wrap');
+    const rows = document.getElementById('mp-sac-rows');
+    if (!wrap || !rows || !d.slacks || d.slacks.length === 0) { if(wrap) wrap.style.display='none'; return; }
+    const impacto = d.pago_mensual || d.monto_total;
+    let acumulado = 0;
+    const afectadas = [];
+    for (const s of d.slacks) {
+      if (acumulado >= impacto) break;
+      const absorbe = Math.min(s.slack, impacto - acumulado);
+      if (absorbe > 0) { afectadas.push({...s, absorbe}); acumulado += absorbe; }
     }
-    _puedeTimer = setTimeout(() => {
-      fetch('/api/puede-pagar', {
+    if (afectadas.length === 0) { wrap.style.display='none'; return; }
+    const catEmoji = {vivienda:'🏠',comida:'🍔',transporte:'🚗',salud:'💊',educacion:'📚',ocio:'🎮',ropa:'👕',deudas:'💳',ahorro:'🐷',imprevistos:'⚡'};
+    rows.innerHTML = afectadas.map(a => {
+      const pct = Math.round((a.absorbe / (a.limite||1)) * 100);
+      const uso = Math.min(Math.round((a.gastado / (a.limite||1))*100), 100);
+      return `<div class="mp-sac-row">
+        <span style="min-width:90px">${catEmoji[a.cat]||'📌'} ${a.cat}</span>
+        <div class="mp-sac-bar"><div class="mp-sac-fill" style="width:${uso}%;background:${uso>85?'var(--red)':uso>60?'var(--yellow)':'var(--accent)'}"></div></div>
+        <span style="color:var(--red);font-weight:700;white-space:nowrap">-$${a.absorbe.toLocaleString('es-MX')}</span>
+      </div>`;
+    }).join('') + (acumulado < impacto ? `<div style="font-size:.73rem;color:var(--red);padding-top:5px">⚠️ Aún faltan $${(impacto-acumulado).toLocaleString('es-MX')} — excede todos los límites</div>` : '');
+    wrap.style.display = '';
+  }
+
+  // Carga IA asíncrona
+  async function mpCargarIA(d) {
+    const rec = document.getElementById('mp-ai-rec');
+    const txt = document.getElementById('mp-ai-text');
+    const spin = document.getElementById('mp-ai-spin');
+    if (!rec || !txt) return;
+    rec.style.display = '';
+    spin.style.display = '';
+    txt.style.color = 'var(--text2)';
+    txt.textContent = 'Analizando tu situación...';
+    try {
+      const res = await fetch('/api/recomienda-compra', {
         method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({monto})
-      }).then(r => r.json()).then(d => {
-        if (d.error) {
-          resultEl.className = 'modal-result nok';
-          resultEl.textContent = 'Completa el onboarding primero para usar esta función.';
-          return;
-        }
-        resultEl.className = 'modal-result ' + (d.puede ? 'ok' : 'nok');
-        let tiempoStr = '';
-        if (d.horas_trabajadas) {
-          tiempoStr = d.horas_trabajadas < 8
-            ? ` · ⏱ ${d.horas_trabajadas}h de trabajo`
-            : ` · ⏱ ${d.dias_trabajados} días de trabajo`;
-        }
-        resultEl.innerHTML = d.mensaje + (d.impacto_pct ? `<br><small style="opacity:.7">${d.impacto_pct}% de tu ingreso${tiempoStr}</small>` : '');
-      }).catch(() => {});
-    }, 400);
+        body: JSON.stringify(d)
+      });
+      const data = await res.json();
+      spin.style.display = 'none';
+      txt.style.color = 'var(--text)';
+      txt.textContent = data.recomendacion || '';
+    } catch(e) {
+      spin.style.display = 'none'; txt.textContent = '';  rec.style.display = 'none';
+    }
+  }
+
+  async function mpCalcular() {
+    const monto  = parseFloat(document.getElementById('mp-monto').value) || 0;
+    const nombre = (document.getElementById('mp-nombre').value || '').trim();
+    const extra  = parseFloat(document.getElementById('mp-extra')?.value) || 0;
+    const tasa   = parseFloat(document.getElementById('mp-tasa')?.value)  || 0;
+    if (monto <= 0) { mpGoTo(0); return; }
+    mpGoTo(3);
+    const vbox = document.getElementById('mp-verdict-box');
+    const grid = document.getElementById('mp-result-grid');
+    const tip  = document.getElementById('mp-tip-box');
+    // Ocultar secciones extra mientras carga
+    ['mp-ai-rec','mp-comp-wrap','mp-cuando-wrap','mp-sac-wrap'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.style.display = 'none';
+    });
+    vbox.className = 'mp-verdict loading'; vbox.textContent = '⏳ Calculando...';
+    grid.innerHTML = ''; tip.style.display = 'none'; tip.innerHTML = '';
+    try {
+      const body = { monto, nombre, tipo: _mpTipo, gastos_extra: extra };
+      if (_mpTipo !== 'unico') body.meses = _mpMeses;
+      if (_mpTipo === 'credito' && tasa > 0) body.tasa_anual = tasa;
+      const res = await fetch('/api/puede-pagar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      const d = await res.json();
+      if (d.error) {
+        vbox.className = 'mp-verdict nok';
+        vbox.textContent = d.error === 'datos insuficientes' ? '⚠️ Completa el onboarding primero para usar esta función.' : '⚠️ ' + d.error;
+        return;
+      }
+      const label = nombre ? `"${nombre}"` : 'Este gasto';
+      if (!d.puede) {
+        vbox.className = 'mp-verdict nok';
+        vbox.textContent = `❌ ${label} no te alcanza — solo tienes $${d.disponible.toLocaleString('es-MX')} disponibles`;
+      } else if (d.afecta_meta) {
+        vbox.className = 'mp-verdict warn';
+        vbox.textContent = `⚠️ Sí alcanza, pero afectará tu meta de ahorro`;
+      } else {
+        vbox.className = 'mp-verdict ok';
+        vbox.textContent = `✅ ${label} entra en tu presupuesto`;
+      }
+      // Grid de métricas
+      const items = [];
+      items.push({ lbl:'Del ingreso mensual', val: d.impacto_pct + '%', col: d.impacto_pct > 30 ? 'var(--red)' : d.impacto_pct > 15 ? 'var(--yellow)' : 'var(--green)' });
+      items.push({ lbl:'Disponible real', val: '$' + d.disponible.toLocaleString('es-MX'), col: d.disponible > 0 ? 'var(--text)' : 'var(--red)' });
+      if (_mpTipo !== 'unico') {
+        items.push({ lbl:'Pago mensual', val: '$' + d.pago_mensual.toLocaleString('es-MX'), col:'var(--accent)' });
+        items.push({ lbl:'Costo total', val: '$' + d.costo_total.toLocaleString('es-MX'), col: d.costo_intereses > 0 ? 'var(--yellow)' : 'var(--text)' });
+      }
+      if (_mpTipo === 'credito' && d.costo_intereses > 0)
+        items.push({ lbl:'Intereses totales', val: '$' + d.costo_intereses.toLocaleString('es-MX'), col:'var(--red)' });
+      if (d.dias_trabajados > 0)
+        items.push({ lbl:'Días trabajados', val: d.dias_trabajados + ' días', col:'var(--text2)' });
+      grid.innerHTML = items.map(it =>
+        `<div class="mp-result-item"><div class="mp-result-item-lbl">${it.lbl}</div><div class="mp-result-item-val" style="color:${it.col}">${it.val}</div></div>`
+      ).join('');
+      // Tips
+      const tips = [];
+      if (d.colchon_meta > 0) tips.push(`🎯 Necesitas reservar $${d.colchon_meta.toLocaleString('es-MX')} para tu meta de ahorro este mes.`);
+      if (d.max_sin_meta > 0 && d.afecta_meta) tips.push(`💡 Podrías gastar hasta $${d.max_sin_meta.toLocaleString('es-MX')} sin afectar tu meta.`);
+      else if (d.max_sin_meta <= 0 && d.puede) tips.push(`⚠️ Tu meta de ahorro ya está comprometida este mes independientemente de este gasto.`);
+      if (d.deficit_meta > 0) tips.push(`⚠️ Este pago te dejaría $${d.deficit_meta.toLocaleString('es-MX')} corto para tu meta mensual.`);
+      if (tips.length > 0) { tip.innerHTML = tips.map(t => `<div style="margin-bottom:3px">${t}</div>`).join(''); tip.style.display = ''; }
+      // ── 4 secciones extra ──────────────────────────
+      mpRenderComparador(d.monto_total, d.ingreso, _mpTipo);
+      mpRenderCuandoSi(d);
+      mpRenderSacrificio(d);
+      mpCargarIA(d);   // asíncrona, no bloquea
+    } catch(e) {
+      vbox.className = 'mp-verdict nok'; vbox.textContent = '❌ Error de conexión. Intenta de nuevo.';
+    }
   }
 
   // ── Historial visual ──────────────────────────────────────────────────────
@@ -2300,11 +2644,13 @@
     const hasBiz = localStorage.getItem('al_mode') !== null || (answers && answers.account_type !== 'personal');
     if (mtw) mtw.style.display = (tabName === 'panel') ? 'flex' : 'none';
     if (mtb) mtb.style.display = 'flex';
-    const inputArea = document.querySelector('.input-area');
-    const statsBar  = document.querySelector('.stats-bar');
+    const inputArea  = document.querySelector('.input-area');
+    const statsBar   = document.querySelector('.stats-bar');
+    const evalStrip  = document.getElementById('eval-strip');
     const isChat = tabName === 'chat';
     if (inputArea) inputArea.style.display = isChat ? 'flex' : 'none';
     if (statsBar)  statsBar.style.display  = isChat ? 'flex' : 'none';
+    if (evalStrip) evalStrip.style.display = isChat ? 'flex' : 'none';
     if (tabName === 'panel' && _mode === 'personal') loadPanelData();
     if (tabName === 'panel' && _mode === 'business') renderBizPanel();
     if (tabName === 'learn')  renderLearnPanel();
@@ -2684,6 +3030,38 @@
       const el = document.getElementById('panel-chart');
       if (el && d.svg) el.innerHTML = d.svg;
     }).catch(() => {});
+    // AI Insight
+    loadDashboardInsight(false);
+  }
+
+  async function loadDashboardInsight(force) {
+    const loading = document.getElementById('ai-insight-loading');
+    const bulletsEl = document.getElementById('ai-insight-bullets');
+    const btn = document.getElementById('insight-refresh-btn');
+    if (!loading || !bulletsEl) return;
+    // Show loading state
+    loading.style.display = 'flex';
+    bulletsEl.style.display = 'none';
+    if (btn) btn.style.opacity = '0.4';
+    try {
+      const res = await fetch('/api/dashboard-insight');
+      const data = await res.json();
+      loading.style.display = 'none';
+      bulletsEl.style.display = 'flex';
+      if (btn) btn.style.opacity = '1';
+      if (data.bullets && data.bullets.length > 0) {
+        bulletsEl.innerHTML = data.bullets.map(b =>
+          `<div class="insight-bullet">${b}</div>`
+        ).join('');
+      } else {
+        bulletsEl.innerHTML = '<div class="insight-bullet" style="color:var(--text2)">Registra ingresos y gastos para ver tu análisis personalizado.</div>';
+      }
+    } catch(e) {
+      loading.style.display = 'none';
+      bulletsEl.style.display = 'flex';
+      if (btn) btn.style.opacity = '1';
+      bulletsEl.innerHTML = '<div class="insight-bullet" style="color:var(--text2)">No se pudo cargar el análisis.</div>';
+    }
   }
 
   // ── Category colors ──────────────────────────────────────────
