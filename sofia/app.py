@@ -41,6 +41,15 @@ GASTO_PATTERN = re.compile(
     re.IGNORECASE
 )
 
+# Confirmacion de compra sin monto ("ya lo compré", "sí lo hice", "lo compré", etc.)
+CONFIRM_COMPRA_PATTERN = re.compile(
+    r'(?:ya\s+lo\s+(?:compr[eé]|pagu[eé]|hice?|tom[eé])|'
+    r'lo\s+compr[eé]|s[ií]\s+lo\s+compr[eé]|s[ií]\s+lo\s+pagu[eé]|'
+    r'ya\s+lo\s+ten[gío]|ya\s+la\s+compr[eé]|s[ií]\s+la\s+compr[eé]|'
+    r'lo\s+acab[oó]\s+de\s+comprar|acab[oó]\s+de\s+pagar)',
+    re.IGNORECASE
+)
+
 CADA_PATTERN = re.compile(
     r'(?:gast[eé]|pagu[eé])\s+\$?(\d[\d,\.]*)\s+en\s+(?:cada|todas)\s+(?:las\s+)?categor',
     re.IGNORECASE
@@ -588,6 +597,37 @@ def chat():
             gastos[cat] = gastos.get(cat, 0) + amount
             new_gastos.append((cat, amount, nombre))
         else:
+            # Detectar confirmacion de compra sin monto ("ya lo compré", etc.)
+            if CONFIRM_COMPRA_PATTERN.search(user_message) and not GASTO_PATTERN.search(user_message):
+                # Buscar monto en el historial reciente (mensajes anteriores)
+                monto_confirmado = None
+                desc_confirmada = None
+                for prev_msg in reversed(messages[-6:]):
+                    # Buscar en mensajes del usuario
+                    if prev_msg.get("role") == "user":
+                        m = GASTO_PATTERN.search(prev_msg.get("content", ""))
+                        if m:
+                            try:
+                                monto_confirmado = float(m.group(1).replace(",", ""))
+                                desc_confirmada = m.group(2) or "compra"
+                            except:
+                                pass
+                            break
+                    # Buscar monto en respuesta de la IA (ej: "pagas $134/mes")
+                    if prev_msg.get("role") == "assistant":
+                        # Buscar mencion de monto original en contexto de compra
+                        m2 = re.search(r'\$(\d[\d,]*)\s*(?:total|el\s+balon|la\s+compra|de\s+\w+)', prev_msg.get("content", ""), re.IGNORECASE)
+                        if m2 and not monto_confirmado:
+                            try:
+                                monto_confirmado = float(m2.group(1).replace(",", ""))
+                                desc_confirmada = "compra confirmada"
+                            except:
+                                pass
+                if monto_confirmado:
+                    cat = classify_gasto(desc_confirmada or "")
+                    gastos[cat] = gastos.get(cat, 0) + monto_confirmado
+                    new_gastos.append((cat, monto_confirmado, desc_confirmada or "compra"))
+
             # Resolve pending gasto from previous message
             if perfil.get("pending_gasto"):
                 pamt = perfil["pending_gasto"]["amount"]
