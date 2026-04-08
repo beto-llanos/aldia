@@ -636,10 +636,21 @@ def chat():
             )
             break
         except Exception as e:
-            print(f"Groq model {model_id} failed: {e}")
+            import traceback
+            print(f"Groq model {model_id} failed: {type(e).__name__}: {e}")
+            traceback.print_exc()
             last_err = e
     if response is None:
-        return jsonify({"error": f"El servicio de IA no está disponible. Intenta en un momento."}), 200
+        # Fallback sin IA: confirmar gastos registrados y devolver budget actualizado
+        if new_gastos:
+            cats_str = ", ".join(f"${int(a):,} en {c}" for c,a,_ in new_gastos)
+            disp = calculate_budget_data(perfil, gastos)
+            disp_val = disp["disponible"] if disp else 0
+            fallback_msg = f"✅ Registré {cats_str}. Te quedan ${disp_val:,.0f} disponibles este mes. (IA temporalmente no disponible)"
+        else:
+            fallback_msg = "Recibí tu mensaje. La IA está temporalmente no disponible — intenta en unos minutos."
+        save_mensaje(session_id, "assistant", fallback_msg)
+        return jsonify({"response": fallback_msg, "budget": calculate_budget_data(perfil, gastos), "alert": check_alerts(perfil, gastos)})
 
     full_response = response.choices[0].message.content
     clean_response = full_response
