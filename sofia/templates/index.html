@@ -977,7 +977,7 @@
     </div>
     <!-- Chart 2: Daily spending vs limit -->
     <div class="panel-card">
-      <div class="panel-card-title">📅 Disponible diario por categoría</div>
+      <div class="panel-card-title">📅 Gasto vs presupuesto por categoría</div>
       <div id="panel-daily-container"><div style="color:var(--text2);font-size:.8rem;text-align:center;padding:16px">Registra gastos para ver el análisis diario</div></div>
     </div>
     <!-- Hidden elements kept for JS compatibility -->
@@ -3198,10 +3198,13 @@
     const dailyLimite = totalLimite / daysInMonth;
     const dailyAvg = today > 0 ? totalGastado / today : 0;
     const disponibleHoy = Math.max(0, dailyLimite - dailyAvg);
+    const totalLimitesMes = cats.reduce((s,c)=>s+ingresoRef*(LIMITES_BASE[c]||0.05),0);
+    const pctGastado = totalLimitesMes > 0 ? Math.round(totalGastado/totalLimitesMes*100) : 0;
+    const colGasto = pctGastado>=90?'var(--red)':pctGastado>=65?'var(--yellow)':'var(--green)';
     let html = `<div class="daily-summary-card">
-      <div class="daily-summary-stat"><div class="daily-summary-val" style="color:var(--green)">$${Math.round(dailyLimite).toLocaleString('es-MX')}</div><div class="daily-summary-lbl">Límite/día</div></div>
+      <div class="daily-summary-stat"><div class="daily-summary-val" style="color:${colGasto}">$${Math.round(totalGastado).toLocaleString('es-MX')}</div><div class="daily-summary-lbl">Gastado mes</div></div>
+      <div class="daily-summary-stat"><div class="daily-summary-val" style="color:var(--text2)">$${Math.round(totalLimitesMes).toLocaleString('es-MX')}</div><div class="daily-summary-lbl">Límite mes</div></div>
       <div class="daily-summary-stat"><div class="daily-summary-val" style="color:${dailyAvg>dailyLimite?'var(--red)':'var(--yellow)'}">$${Math.round(dailyAvg).toLocaleString('es-MX')}</div><div class="daily-summary-lbl">Promedio/día</div></div>
-      <div class="daily-summary-stat"><div class="daily-summary-val" style="color:${disponibleHoy>0?'var(--green)':'var(--red)'}">$${Math.round(disponibleHoy).toLocaleString('es-MX')}</div><div class="daily-summary-lbl">Disponible hoy</div></div>
       <div class="daily-summary-stat"><div class="daily-summary-val" style="color:var(--text2)">${daysLeft}</div><div class="daily-summary-lbl">Días restantes</div></div>
     </div><div class="daily-section">`;
     cats.forEach(cat => {
