@@ -895,9 +895,6 @@
     <div class="sb-section-lbl">Herramientas</div>
     <div class="sb-nav-item" onclick="closeSidebar();mostrarHistorial()"><span class="sb-nav-icon">📋</span>Historial</div>
     <div class="sb-nav-item" onclick="closeSidebar();mostrarGrafica()"><span class="sb-nav-icon">📉</span>Gráfica mensual</div>
-    <div class="sb-nav-item" onclick="closeSidebar();abrirConectarBanco()"><span class="sb-nav-icon">🏦</span>Conectar banco</div>
-    <div class="sb-nav-item" onclick="closeSidebar();document.getElementById('file-import').click()"><span class="sb-nav-icon">📂</span>Importar estado</div>
-    <input type="file" id="file-import" accept=".csv,.pdf" style="display:none" onchange="importarEstado(this)">
     <div style="display:none">
       <div id="health-panel"></div>
       <div id="score-nivel"></div><div id="score-personalidad"></div><div id="score-num"></div>
@@ -1231,47 +1228,6 @@
   </div>
 </div>
 
-<!-- Modal Conectar Banco -->
-<div id="modal-banco" style="display:none" class="modal-overlay" onclick="if(event.target===this)cerrarBanco()">
-  <div class="modal-card">
-    <div class="modal-title">🏦 Conectar banco</div>
-    <div class="modal-sub" id="banco-sub">Elige tu banco para sincronizar tus movimientos automáticamente</div>
-    <div class="banco-grid" id="banco-grid">
-      <button class="banco-btn featured" onclick="iniciarOAuth('Banco Azteca')">
-        <span class="banco-logo">🏛️</span>
-        <span class="banco-name">Banco Azteca</span>
-        <span class="banco-sub">Recomendado · Guardadito</span>
-      </button>
-      <button class="banco-btn" onclick="iniciarOAuth('BBVA')">
-        <span class="banco-logo">💙</span>
-        <span class="banco-name">BBVA</span>
-        <span class="banco-sub">Débito y crédito</span>
-      </button>
-      <button class="banco-btn" onclick="iniciarOAuth('Nu')">
-        <span class="banco-logo">💜</span>
-        <span class="banco-name">Nu</span>
-        <span class="banco-sub">Cuenta y crédito</span>
-      </button>
-      <button class="banco-btn" onclick="iniciarOAuth('HSBC')">
-        <span class="banco-logo">🔴</span>
-        <span class="banco-name">HSBC</span>
-        <span class="banco-sub">Débito y crédito</span>
-      </button>
-    </div>
-    <div class="oauth-loader" id="oauth-loader">
-      <div class="spin"></div>
-      <div id="oauth-loader-txt" style="font-size:14px;color:var(--muted2)">Conectando con <span id="oauth-banco-name"></span>...</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:4px">Autenticación segura OAuth 2.0</div>
-    </div>
-    <div class="oauth-success" id="oauth-success">
-      <div style="font-size:40px;margin-bottom:8px">✅</div>
-      <div style="font-size:17px;font-weight:800;margin-bottom:4px" id="oauth-success-title"></div>
-      <div style="font-size:13px;color:var(--muted2);margin-bottom:16px">Tus movimientos están sincronizados</div>
-      <div id="oauth-cuentas"></div>
-    </div>
-    <button class="modal-close" id="banco-close-btn" onclick="cerrarBanco()">Cancelar</button>
-  </div>
-</div>
 
 <script>
 // Verificar sesion al cargar
@@ -2351,106 +2307,6 @@
     el.scrollTop = el.scrollHeight;
   }
 
-  // ── Conectar banco ────────────────────────────────────────────────────────
-  let _oauthConnecting = false;
-
-  function abrirConectarBanco() {
-    _oauthConnecting = false;
-    document.getElementById('modal-banco').style.display = 'flex';
-    document.getElementById('banco-grid').style.display = 'grid';
-    document.getElementById('oauth-loader').style.display = 'none';
-    document.getElementById('oauth-success').style.display = 'none';
-    document.getElementById('oauth-cuentas').innerHTML = '';
-    document.getElementById('banco-close-btn').textContent = 'Cancelar';
-    document.getElementById('banco-sub').textContent = 'Elige tu banco para sincronizar tus movimientos automáticamente';
-    // Re-enable all banco buttons
-    document.querySelectorAll('.banco-btn').forEach(b => b.disabled = false);
-  }
-
-  function cerrarBanco() {
-    _oauthConnecting = false;
-    document.getElementById('modal-banco').style.display = 'none';
-  }
-
-  // Mapeo banco → perfil Syncfy para demo
-  const BANCO_PERFIL = {
-    'Banco Azteca': 1,  // Estable, oferta automotriz razonable
-    'BBVA':         2,  // Apretado, TDC 79%, DTI 46%, mala oferta
-    'Nu':           3,  // Crisis, TDC vencida, reestructura disponible
-    'HSBC':         1,
-  };
-
-  function iniciarOAuth(banco) {
-    if (_oauthConnecting) return;
-    _oauthConnecting = true;
-    document.querySelectorAll('.banco-btn').forEach(b => b.disabled = true);
-    document.getElementById('banco-grid').style.display = 'none';
-    document.getElementById('oauth-success').style.display = 'none';
-    const loader = document.getElementById('oauth-loader');
-    loader.style.display = 'block';
-    document.getElementById('oauth-banco-name').textContent = banco;
-    document.getElementById('banco-sub').textContent = 'Autenticando con ' + banco + '...';
-    document.getElementById('banco-close-btn').textContent = 'Cancelar';
-
-    const perfil_id = BANCO_PERFIL[banco] || 1;
-
-    setTimeout(() => {
-      fetch('/api/conectar-banco', {
-        method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({banco, perfil_id})
-      }).then(r => r.json()).then(data => {
-        loader.style.display = 'none';
-        const success = document.getElementById('oauth-success');
-        success.style.display = 'block';
-        document.getElementById('oauth-success-title').textContent = '✅ ' + banco + ' conectado';
-        document.getElementById('banco-sub').textContent = '';
-        const cuentasEl = document.getElementById('oauth-cuentas');
-        cuentasEl.innerHTML = (data.cuentas || []).map(c => `
-          <div class="cuenta-card">
-            <div><div class="cuenta-tipo">${c.tipo}</div><div class="cuenta-num">${c.numero}</div></div>
-            <div class="cuenta-saldo">${c.saldo !== undefined ? '$' + c.saldo.toLocaleString('es-MX') : 'Crédito: $' + (c.usado||0).toLocaleString('es-MX') + ' / $' + (c.limite||0).toLocaleString('es-MX')}</div>
-          </div>`).join('');
-        document.getElementById('banco-close-btn').textContent = '¡Listo!';
-        fetch('/api/budget').then(r=>r.json()).then(b=>{ if(b.budget) updateBudget(b.budget); });
-        loadHealthScore();
-        // Mensaje proactivo en el chat con análisis real
-        const icon = data.tiene_alerta ? '🚨' : data.tiene_oferta ? '💡' : '🏦';
-        addMessage('aldia', `${icon} *${banco} conectado vía open finance.*\n\n${data.analisis}`);
-      }).catch(() => {
-        _oauthConnecting = false;
-        loader.style.display = 'none';
-        addMessage('aldia', 'Error al conectar el banco. Intenta de nuevo.');
-        cerrarBanco();
-      });
-    }, 2000); // Simular latencia OAuth
-  }
-
-  // ── Importar estado de cuenta ─────────────────────────────────────────────
-  async function importarEstado(input) {
-    const file = input.files[0];
-    if (!file) return;
-    const formData = new FormData();
-    formData.append('archivo', file);
-    addMessage('user', `📂 Importando: ${file.name}`);
-    showTyping();
-    try {
-      const res = await fetch('/api/importar-estado', {method: 'POST', body: formData});
-      const data = await res.json();
-      hideTyping();
-      if (data.error) { addMessage('aldia', '⚠️ ' + data.error); }
-      else {
-        const cats = Object.entries(data.totales || {})
-          .map(([c,m]) => `${c}: $${m.toLocaleString('es-MX')}`)
-          .join(' · ');
-        addMessage('aldia', `${data.mensaje}\n\n📊 ${cats}\n\nActualicé tu presupuesto con los nuevos movimientos.`);
-        fetch('/api/budget').then(r=>r.json()).then(b=>{ if(b.budget) updateBudget(b.budget); loadHealthScore(); });
-      }
-    } catch {
-      hideTyping();
-      addMessage('aldia', 'Error procesando el archivo.');
-    }
-    input.value = '';
-  }
 
   // ── iOS Safari: ajuste al teclado virtual ────────────────────────────────
   if (window.visualViewport) {
