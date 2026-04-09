@@ -421,6 +421,15 @@
     .cg-impact.rojo{background:rgba(239,68,68,.12);color:var(--red);}
     .cg-eval-btn{width:100%;margin-top:8px;padding:7px 0;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:.75rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:.15s;}
     .cg-eval-btn:hover{opacity:.88;}
+    .cg-rec{font-size:.72rem;line-height:1.4;padding:6px 8px;border-radius:7px;margin:5px 0 4px;font-style:italic;}
+    .cg-rec.verde{background:rgba(16,185,129,.08);color:var(--green);}
+    .cg-rec.amarillo{background:rgba(234,179,8,.08);color:#FBBF24;}
+    .cg-rec.rojo{background:rgba(239,68,68,.08);color:var(--red);}
+    .cg-stats{display:flex;flex-direction:column;gap:2px;margin-bottom:4px;}
+    .cg-stat-line{font-size:.68rem;color:var(--text2);display:flex;align-items:center;gap:4px;}
+    .cg-bank-label{display:inline-flex;align-items:center;gap:4px;font-size:.63rem;font-weight:700;padding:2px 8px;border-radius:10px;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;}
+    .cg-bank-label.ok{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.25);}
+    .cg-bank-label.risk{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);}
     .ob-sim-badge{font-size:.73rem;color:var(--text2);background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:6px 12px;margin-bottom:14px;text-align:center;}
     .streak-card{background:linear-gradient(135deg,rgba(251,191,36,.1),rgba(245,158,11,.15));border:1px solid rgba(251,191,36,.25);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;}
     .streak-fire{font-size:1.5rem;}
@@ -3553,10 +3562,32 @@
 
   function cgImpacto(precio) {
     const disp = cgGetDisponible();
-    if (disp <= 0) return { cls:'amarillo', label:'Sin datos' };
-    if (precio < disp * 0.5) return { cls:'verde',    label:'\uD83D\uDFE2 Al alcance' };
-    if (precio < disp)       return { cls:'amarillo', label:'\uD83D\uDFE1 Ajustado' };
-    return                          { cls:'rojo',     label:'\uD83D\uDD34 Fuera de rango' };
+    const ingreso = ingresoRef || (answers ? (answers.ingreso || 0) : 0);
+    const ahorro = Math.round(ingreso * 0.20);
+    const pagoMensual = Math.ceil(precio / 12);
+    const mesesLiquidar = ahorro > 0 ? Math.ceil(precio / ahorro) : null;
+    const pctAhorro = ahorro > 0 ? Math.round((pagoMensual / ahorro) * 100) : null;
+    const libre = disp > 0 ? Math.round(disp - pagoMensual) : null;
+
+    let cls, semaforo, rec, bankLabel, bankCls;
+    if (disp <= 0 || ingreso <= 0) {
+      cls = 'amarillo'; semaforo = '\uD83D\uDFE1';
+      rec = 'Registra tu ingreso para ver el impacto real.';
+      bankLabel = null;
+    } else if (precio < disp * 0.5) {
+      cls = 'verde'; semaforo = '\uD83D\uDFE2';
+      rec = 'Compra viable. No compromete tu ahorro mensual.';
+      bankLabel = '\u2705 Cliente preparado'; bankCls = 'ok';
+    } else if (precio < disp) {
+      cls = 'amarillo'; semaforo = '\uD83D\uDFE1';
+      rec = 'Posible, pero reduce tu margen mensual disponible.';
+      bankLabel = '\u26A0\uFE0F Cliente en riesgo'; bankCls = 'risk';
+    } else {
+      cls = 'rojo'; semaforo = '\uD83D\uDD34';
+      rec = 'Riesgo alto: podr\u00EDas no terminar de pagar sin comprometer otras necesidades.';
+      bankLabel = '\uD83D\uDEAB Cliente en riesgo'; bankCls = 'risk';
+    }
+    return { cls, semaforo, rec, bankLabel, bankCls, mesesLiquidar, pctAhorro, libre, pagoMensual };
   }
 
   function cgEvaluar(nombre, precio) {
@@ -3578,12 +3609,22 @@
       : '<div class="cg-info-bar">Registra tu ingreso en el chat para ver el impacto financiero de cada producto.</div>';
 
     const cards = CATALOGO.map(function(p) {
-      const impacto  = cgImpacto(p.precio);
-      const desde    = Math.ceil(p.precio / 12);
-      const msiPago  = p.msi ? Math.ceil(p.precio / p.msi) : null;
-      const badgeHtml = p.badge ? '<div class="cg-badge">' + p.badge + '</div>' : '';
-      const msiHtml   = msiPago ? '<div class="cg-msi">O $' + msiPago.toLocaleString('es-MX') + '/mes a ' + p.msi + ' MSI</div>' : '';
+      const imp = cgImpacto(p.precio);
+      const msiPago = p.msi ? Math.ceil(p.precio / p.msi) : null;
       const safeNombre = p.nombre.replace(/'/g, "\\'");
+
+      const badgeHtml = p.badge ? '<div class="cg-badge">' + p.badge + '</div>' : '';
+      const bankHtml  = imp.bankLabel ? '<div class="cg-bank-label ' + imp.bankCls + '">' + imp.bankLabel + '</div>' : '';
+      const msiHtml   = msiPago ? '<div class="cg-msi">O $' + msiPago.toLocaleString('es-MX') + '/mes a ' + p.msi + ' MSI</div>' : '';
+
+      // Impacto real en números
+      var statsLines = '';
+      if (imp.mesesLiquidar) statsLines += '<div class="cg-stat-line">&#x23F1; Te tomar\u00EDa ' + imp.mesesLiquidar + ' mes' + (imp.mesesLiquidar !== 1 ? 'es' : '') + ' liquidarlo</div>';
+      if (imp.pctAhorro)     statsLines += '<div class="cg-stat-line">&#x1F4B8; Reducir\u00EDa tu ahorro en ' + imp.pctAhorro + '%</div>';
+      if (imp.libre !== null && imp.libre >= 0) statsLines += '<div class="cg-stat-line">&#x1F7E2; Te dejar\u00EDa $' + imp.libre.toLocaleString('es-MX') + ' libres/mes</div>';
+      if (imp.libre !== null && imp.libre < 0)  statsLines += '<div class="cg-stat-line" style="color:var(--red)">&#x26A0; Superar\u00EDa tu disponible mensual</div>';
+      const statsHtml = statsLines ? '<div class="cg-stats">' + statsLines + '</div>' : '';
+
       return '<div class="cg-card">' +
         '<div class="cg-img-wrap">' +
           '<img class="cg-img" src="' + p.img + '" alt="' + p.nombre.replace(/"/g,'&quot;') + '" loading="lazy" ' +
@@ -3593,10 +3634,12 @@
         '<div class="cg-body">' +
           cgVendorBadge(p.vendedor) +
           badgeHtml +
+          bankHtml +
           '<div class="cg-name">' + p.nombre + '</div>' +
           '<div class="cg-price">$' + p.precio.toLocaleString('es-MX') + '</div>' +
-          '<div class="cg-desde">Desde $' + desde.toLocaleString('es-MX') + '/mes</div>' +
-          '<div class="cg-impact ' + impacto.cls + '">' + impacto.label + '</div>' +
+          '<div class="cg-desde">Desde $' + imp.pagoMensual.toLocaleString('es-MX') + '/mes</div>' +
+          '<div class="cg-rec ' + imp.cls + '">' + imp.semaforo + ' ' + imp.rec + '</div>' +
+          statsHtml +
           msiHtml +
           '<button class="cg-eval-btn" onclick="cgEvaluar(\'' + safeNombre + '\',' + p.precio + ')">Evaluar compra</button>' +
         '</div>' +
